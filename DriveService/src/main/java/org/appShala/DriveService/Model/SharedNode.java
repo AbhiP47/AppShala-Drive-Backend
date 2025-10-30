@@ -2,6 +2,7 @@ package org.appShala.DriveService.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "Sharred_Node")
 public class SharedNode {
 
@@ -24,7 +26,7 @@ public class SharedNode {
     @JoinColumn(name = "node_id", nullable = false)
     private DriveNode driveNode;
 
-    @Column(name = "Shared_With" , nullable = false)
+    @Column(name = "shared_with" , nullable = false)
     private UUID sharedWith;
 
     @Enumerated(EnumType.STRING)
@@ -35,7 +37,7 @@ public class SharedNode {
     @Column(name = "permission" , nullable = false)
     private Permission permission;
 
-    @Column(name = "Shared_At" , nullable = false)
+    @Column(name = "shared_at" , nullable = false)
     private LocalDateTime sharedAt;
 
     @Column(name="revoked" , nullable = false)

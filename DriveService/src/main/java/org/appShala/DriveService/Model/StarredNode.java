@@ -2,6 +2,7 @@ package org.appShala.DriveService.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name="Starred_Node")
 public class StarredNode {
     @Id
@@ -22,12 +24,12 @@ public class StarredNode {
     @JoinColumn(name = "node_id", nullable = false)
     private DriveNode driveNode;
 
-    @Column(name="starred_By" , nullable = false)
+    @Column(name="starred_by" , nullable = false)
     private UUID starredBy;
 
-    @Column(name="Starred_At" , nullable = false)
+    @Column(name="starred_at" , nullable = false)
     private LocalDateTime starredAt;
 
-    @Column(name="is_Starred" , nullable = false)
+    @Column(name="is_starred" , nullable = false)
     private boolean isStarred;
 }

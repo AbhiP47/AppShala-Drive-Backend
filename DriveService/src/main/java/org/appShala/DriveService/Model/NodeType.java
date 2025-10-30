@@ -1,10 +1,7 @@
 package org.appShala.DriveService.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Generated;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -12,7 +9,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "NodeType")
+@Builder
+@Table(name = "node_type")
 public class NodeType {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,7 +19,7 @@ public class NodeType {
     @Column(name="type" , nullable = false)
     private String type;
 
-    @Column(name = "is_Folder" , nullable = false)
+    @Column(name = "is_folder" , nullable = false)
     private boolean isFolder;
 
     @Column(name = "icon")

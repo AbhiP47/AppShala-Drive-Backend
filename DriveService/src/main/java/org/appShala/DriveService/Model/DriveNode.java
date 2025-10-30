@@ -1,5 +1,6 @@
 package org.appShala.DriveService.Model;
 
+import lombok.Builder;
 import org.appShala.DriveService.Model.DriveNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "Drive_Node")
 public class DriveNode {
 
@@ -23,26 +25,26 @@ public class DriveNode {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "Node_Type")
+    @Column(name = "node_type")
     private UUID nodeType;
 
     @ManyToOne(fetch =FetchType.LAZY)
-    @JoinColumn(name = "parent_Id" , referencedColumnName = "id")
+    @JoinColumn(name = "parent_id" , referencedColumnName = "id")
     private DriveNode parentNode;
 
-    @Column(name="Storage_Id")
+    @Column(name="storage_id")
     private UUID storageId;
 
-    @Column(name= "size_Bytes")
+    @Column(name= "size_bytes")
     private Long sizeBytes;
 
     @Column(name="created_at" , nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "last_Modified_At" , nullable = false)
+    @Column(name = "last_modified_at" , nullable = false)
     private LocalDateTime lastModifiedAt;
 
-    @Column(name = "Shared_With")
+    @Column(name = "shared_with")
     private Boolean sharedWith;
 
     @Column(name = "description")
@@ -54,10 +56,10 @@ public class DriveNode {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "owner_Id")
+    @Column(name = "owner_id")
     private UUID ownerId;
 
-    @Column(name= "modified_By")
+    @Column(name= "modified_by")
     private UUID modifiedByID;
 
 }
