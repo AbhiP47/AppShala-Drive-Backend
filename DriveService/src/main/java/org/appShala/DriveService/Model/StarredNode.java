@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name="Starred_Node")
+@Table(name="starred_node")
 public class StarredNode {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

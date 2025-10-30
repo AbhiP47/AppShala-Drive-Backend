@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name = "Sharred_Node")
+@Table(name = "sharred_node")
 public class SharedNode {
 
     @Id

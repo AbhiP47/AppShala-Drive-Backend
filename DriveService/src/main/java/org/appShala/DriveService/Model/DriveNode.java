@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name = "Drive_Node")
+@Table(name = "drive_node")
 public class DriveNode {
 
     @Id
