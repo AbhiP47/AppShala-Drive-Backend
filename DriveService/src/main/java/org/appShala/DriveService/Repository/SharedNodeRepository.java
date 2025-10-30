@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public class SharedNodeRepository extends JpaRepository<SharedNode, UUID>
+public interface SharedNodeRepository extends JpaRepository<SharedNode, UUID>
 
 
 {
