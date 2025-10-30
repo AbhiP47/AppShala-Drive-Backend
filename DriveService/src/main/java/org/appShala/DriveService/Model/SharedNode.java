@@ -1,0 +1,46 @@
+package org.appShala.DriveService.Model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.security.Permission;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "Sharred_Node")
+public class SharedNode {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "node_id", nullable = false)
+    private DriveNode driveNode;
+
+    @Column(name = "SharedWith" , nullable = false)
+    private UUID sharedWith;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "shared_with_entity", nullable = false)
+    private String sharedWithEntity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "permission" , nullable = false)
+    private Permission permission;
+
+    @Column(name = "SharedAt" , nullable = false)
+    private LocalDateTime sharedAt;
+
+    @Column(name="revoked" , nullable = false)
+    private Boolean revoked;
+
+    @Column(name = "shared_by", nullable = false)
+    private UUID sharedBy;
+}

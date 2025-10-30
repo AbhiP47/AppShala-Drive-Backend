@@ -60,6 +60,4 @@ public class DriveNode {
     @Column(name= "modifiedBy")
     private UUID modifiedByID;
 
-
-
 }

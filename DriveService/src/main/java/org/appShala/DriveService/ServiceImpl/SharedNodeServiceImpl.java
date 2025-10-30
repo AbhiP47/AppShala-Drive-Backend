@@ -1,4 +1,4 @@
 package org.appShala.DriveService.ServiceImpl;
 
-public class SharredNodeServiceImpl {
+public class SharedNodeServiceImpl {
 }

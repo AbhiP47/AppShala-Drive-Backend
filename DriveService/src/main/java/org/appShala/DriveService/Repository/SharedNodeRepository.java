@@ -1,4 +1,4 @@
 package org.appShala.DriveService.Repository;
 
-public class SharredNodeRepository {
+public class SharedNodeRepository {
 }
