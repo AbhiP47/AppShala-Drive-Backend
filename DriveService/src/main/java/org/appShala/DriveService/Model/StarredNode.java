@@ -22,7 +22,7 @@ public class StarredNode {
     @JoinColumn(name = "node_id", nullable = false)
     private DriveNode driveNode;
 
-    @Column(name="starredBy" , nullable = false)
+    @Column(name="starred_By" , nullable = false)
     private UUID starredBy;
 
     @Column(name="Starred_At" , nullable = false)

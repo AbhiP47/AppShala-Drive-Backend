@@ -21,7 +21,7 @@ public class NodeType {
     @Column(name="type" , nullable = false)
     private String type;
 
-    @Column(name = "isFolder" , nullable = false)
+    @Column(name = "is_Folder" , nullable = false)
     private boolean isFolder;
 
     @Column(name = "icon")

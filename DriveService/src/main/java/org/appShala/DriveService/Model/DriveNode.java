@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "DriveNode")
+@Table(name = "Drive_Node")
 public class DriveNode {
 
     @Id
@@ -23,23 +23,23 @@ public class DriveNode {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "NodeType")
+    @Column(name = "Node_Type")
     private UUID nodeType;
 
     @ManyToOne(fetch =FetchType.LAZY)
-    @JoinColumn(name = "parentId" , referencedColumnName = "id")
+    @JoinColumn(name = "parent_Id" , referencedColumnName = "id")
     private DriveNode parentNode;
 
-    @Column(name="StorageId")
+    @Column(name="Storage_Id")
     private UUID storageId;
 
-    @Column(name= "sizeBytes")
+    @Column(name= "size_Bytes")
     private Long sizeBytes;
 
     @Column(name="created_at" , nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "lastModifiedAt" , nullable = false)
+    @Column(name = "last_Modified_At" , nullable = false)
     private LocalDateTime lastModifiedAt;
 
     @Column(name = "Shared_With")
@@ -54,10 +54,10 @@ public class DriveNode {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "ownerId")
+    @Column(name = "owner_Id")
     private UUID ownerId;
 
-    @Column(name= "modifiedBy")
+    @Column(name= "modified_By")
     private UUID modifiedByID;
 
 }

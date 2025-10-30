@@ -1,4 +1,5 @@
 package org.appShala.DriveService.Service;
 
-public class StarredNodeService {
+public interface StarredNodeService {
+
 }
