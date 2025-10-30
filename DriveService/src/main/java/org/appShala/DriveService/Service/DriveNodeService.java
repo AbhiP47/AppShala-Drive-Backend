@@ -12,6 +12,4 @@ public interface DriveNodeService {
     DriveNodeResponse updateNode(UUID nodeId ,  DriveNodeCreationRequest request , UUID UserId);
 
     void softDeleteNode(UUID nodeId);
-
-
 }

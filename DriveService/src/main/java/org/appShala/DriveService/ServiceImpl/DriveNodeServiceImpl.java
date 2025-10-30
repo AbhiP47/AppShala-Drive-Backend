@@ -1,4 +1,7 @@
 package org.appShala.DriveService.ServiceImpl;
 
-public class DriveNodeServiceImpl {
+import org.appShala.DriveService.Service.DriveNodeService;
+
+public class DriveNodeServiceImpl implements DriveNodeService{
+
 }

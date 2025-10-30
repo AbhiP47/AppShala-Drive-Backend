@@ -1,4 +1,7 @@
 package org.appShala.DriveService.ServiceImpl;
 
-public class NodeTypeServiceImpl {
+import org.appShala.DriveService.Service.StarredNodeService;
+
+public class NodeTypeServiceImpl implements StarredNodeService {
+
 }
