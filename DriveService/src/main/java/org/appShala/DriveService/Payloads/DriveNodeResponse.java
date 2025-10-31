@@ -14,11 +14,11 @@ public class DriveNodeResponse {
     private UUID id;
     private String Name;
     private String Type;
-    private long sizeInBytes;
+    private Long sizeInBytes;
     private UUID ownerId;
     private ZonedDateTime createdAt;
     private ZonedDateTime lastModifiedAt;
-    private boolean isShared;
-    private boolean isStarred;
+    private Boolean isShared;
+    private Boolean isStarred;
 
 }

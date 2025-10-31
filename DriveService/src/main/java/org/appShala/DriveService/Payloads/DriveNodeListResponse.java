@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DriveNodeListResponse
 {
-    private int totalNodes;
+    private Integer totalNodes;
     private List<DriveNodeResponse> nodes;
     private List<StarredNodeResponse> starredNodes;
 

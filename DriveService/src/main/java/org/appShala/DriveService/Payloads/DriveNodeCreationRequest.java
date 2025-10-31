@@ -16,7 +16,7 @@ public class DriveNodeCreationRequest
     private String name;
 
     private UUID parentId;
-    private long sizeInBytes;
+    private Long sizeInBytes;
     private String FileExtension;
     private String NodeType;
     private String OwnerId;

@@ -19,9 +19,9 @@ public class DriveNodeUpdateRequest
     private String description;
     private ZonedDateTime createdAt;
     private ZonedDateTime lastModifiedAt;
-    private boolean isShared;
-    private boolean isStarred;
-    private int totalNodes;
+    private Boolean isShared;
+    private Boolean isStarred;
+    private Integer totalNodes;
     private List<StarredNodeResponse> starredNodes;
     private UUID newParentId;
 
