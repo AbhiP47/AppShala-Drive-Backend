@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Nodes.collect;
 
@@ -63,10 +64,10 @@ public class StarredNodeServiceImpl implements StarredNodeService {
     public List<StarredNodeResponse> getStarredNodesForUser(UUID UserId)
     {
         List<StarredNode> starredNodes=starredNodeRepository.findAllByStarredBy(UserId).stream()
-                .filter(StarredNode::getisStarred)
-                .collect(collectors.toList());
+                .filter(StarredNode::getIsStarred)
+                .collect(Collectors.toList());
         return starredNodes.stream()
                 .map(this::mapToResponse)
-                .collect(collectors.toList());
+                .collect(Collectors.toList());
     }
 }
