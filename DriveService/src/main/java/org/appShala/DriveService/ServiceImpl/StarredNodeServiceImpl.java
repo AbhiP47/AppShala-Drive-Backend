@@ -5,7 +5,6 @@ import org.appShala.DriveService.Model.StarredNode;
 import org.appShala.DriveService.Payloads.StarredNodeResponse;
 import org.appShala.DriveService.Repository.DriveNodeRepository;
 import org.appShala.DriveService.Repository.StarredNodeRepository;
-import org.appShala.DriveService.Service.DriveNodeService;
 import org.appShala.DriveService.Service.StarredNodeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

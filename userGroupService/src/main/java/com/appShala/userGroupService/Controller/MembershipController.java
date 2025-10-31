@@ -15,13 +15,11 @@ import java.util.UUID;
 @RequestMapping("/api/membership")
 public class MembershipController {
 
-    private final UserGroupService groupService;
     private final MembershipRepository membershipRepository;
     private final MembershipService membershipService;
 
     public  MembershipController(UserGroupService groupService, MembershipRepository membershipRepository, MembershipService membershipService)
     {
-        this.groupService = groupService;
         this.membershipRepository = membershipRepository;
         this.membershipService = membershipService;
     }

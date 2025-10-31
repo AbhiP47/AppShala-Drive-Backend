@@ -5,7 +5,6 @@ import com.appShala.userGroupService.Enum.SortDirection;
 import com.appShala.userGroupService.Payload.UserGroupRequest;
 import com.appShala.userGroupService.Payload.UserGroupResponse;
 import com.appShala.userGroupService.Service.UserGroupService;
-import com.appShala.userGroupService.Service.UserGroupServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

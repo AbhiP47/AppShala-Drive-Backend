@@ -15,17 +15,11 @@ import java.util.stream.Collectors;
 @Service
 public class DriveNodeServiceImpl implements DriveNodeService {
     private final DriveNodeRepository driveNodeRepository;
-    private final SharedNodeService sharedNodeService;
-    private final NodeTypeService nodeTypeService;
-    private final StarredNodeService starredNodeService;
 
     public DriveNodeServiceImpl(DriveNodeRepository driveNodeRepository,
                                 SharedNodeService sharedNodeService,
                                 NodeTypeService nodeTypeService, StarredNodeService starredNodeService) {
         this.driveNodeRepository = driveNodeRepository;
-        this.sharedNodeService = sharedNodeService;
-        this.nodeTypeService = nodeTypeService;
-        this.starredNodeService = starredNodeService;
     }
 
     private DriveNode maptoEntity( DriveNodeCreationRequest request, UUID UserId) {

@@ -1,6 +1,5 @@
 package org.appShala.DriveService.Service;
 
-import org.appShala.DriveService.Payloads.StarredNodeRequest;
 import org.appShala.DriveService.Payloads.StarredNodeResponse;
 
 import java.util.List;
