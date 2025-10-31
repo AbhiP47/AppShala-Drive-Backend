@@ -6,6 +6,7 @@ import org.appShala.DriveService.Payloads.SharedNodeResponse;
 import org.appShala.DriveService.Repository.DriveNodeRepository;
 import org.appShala.DriveService.Repository.SharedNodeRepository;
 import org.appShala.DriveService.Service.SharedNodeService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
 public class SharedNodeServiceImpl implements SharedNodeService
 {
     private final SharedNodeRepository sharedNodeRepository;

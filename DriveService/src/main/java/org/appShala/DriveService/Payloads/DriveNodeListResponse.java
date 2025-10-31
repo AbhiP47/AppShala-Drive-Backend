@@ -1,4 +1,18 @@
 package org.appShala.DriveService.Payloads;
 
-public class DriveNodeListResponse {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class DriveNodeListResponse
+{
+    private int totalNodes;
+    private List<DriveNodeResponse> nodes;
+    private List<StarredNodeResponse> starredNodes;
+
 }

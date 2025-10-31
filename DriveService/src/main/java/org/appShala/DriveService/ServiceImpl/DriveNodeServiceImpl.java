@@ -52,8 +52,8 @@ public class DriveNodeServiceImpl implements DriveNodeService {
         response.setName(node.getName());
         response.setType(node.getType());
         response.setCreatedAt(node.getCreatedAt());
-        boolean isStarred = SharedNodeRepository.findByDriveNodeIdAndStarredBy(node.getId(), requestingUserId).isPresent();
-        response.setStarred(isStarred);
+        boolean isShared = SharedNodeRepository.findByDriveNodeIdAndStarredBy(node.getId(), requestingUserId).isPresent();
+        response.setShared(isShared);
 
         return response;
     }

@@ -7,6 +7,7 @@ import org.appShala.DriveService.Repository.DriveNodeRepository;
 import org.appShala.DriveService.Repository.StarredNodeRepository;
 import org.appShala.DriveService.Service.DriveNodeService;
 import org.appShala.DriveService.Service.StarredNodeService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -15,8 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Nodes.collect;
-
+@Service
 public class StarredNodeServiceImpl implements StarredNodeService {
     private final StarredNodeRepository starredNodeRepository;
     private final DriveNodeRepository driveNodeRepository;
@@ -29,7 +29,7 @@ public class StarredNodeServiceImpl implements StarredNodeService {
         StarredNodeResponse response =new StarredNodeResponse();
         response.setstarredAt(starredNode.getStarredAt());
         response.setIsStarred(starredNode.getIsStarred());
-        response.setstarredBy(starredNode.getStarredBy());
+        response.setStarredBy(starredNode.getStarredBy());
         return response;
     }
 

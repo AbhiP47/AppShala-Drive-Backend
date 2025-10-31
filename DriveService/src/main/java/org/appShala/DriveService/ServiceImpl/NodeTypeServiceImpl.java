@@ -5,11 +5,12 @@ import org.appShala.DriveService.Payloads.StarredNodeResponse;
 import org.appShala.DriveService.Repository.NodeTypeRepository;
 import org.appShala.DriveService.Service.NodeTypeService;
 import org.appShala.DriveService.Service.StarredNodeService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-
+@Service
 public class NodeTypeServiceImpl implements NodeTypeService
 {
     private final NodeTypeRepository nodeTypeRepository;
