@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface DriveNodeRepository extends JpaRepository<DriveNode> {
+public interface DriveNodeRepository extends JpaRepository<DriveNode , UUID> {
 
 }
