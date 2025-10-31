@@ -1,5 +1,6 @@
 package org.appShala.DriveService.ServiceImpl;
 
+import jakarta.validation.Valid;
 import org.appShala.DriveService.Model.*;
 import org.appShala.DriveService.Payloads.*;
 import org.appShala.DriveService.Repository.*;
@@ -7,8 +8,6 @@ import org.appShala.DriveService.Service.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,7 +31,7 @@ public class DriveNodeServiceImpl implements DriveNodeService {
     private DriveNode maptoEntity( DriveNodeCreationRequest request, UUID UserId) {
         DriveNode node = new DriveNode();
         node.setName(request.getName());
-        node.setNodeType(request.getNodeType());
+        node.setNodeType(UUID.fromString(request.getNodeType()));
         node.setOwnerId(UserId);
         node.setModifiedByID(UserId);
         node.setIsDeleted(false);
@@ -99,7 +98,7 @@ public class DriveNodeServiceImpl implements DriveNodeService {
 
     @Override
     @Transactional
-    public DriveNodeResponse updateNode(UUID nodeId, DriveNodeCreationRequest request, UUID UserId)
+    public DriveNodeResponse updateNode(UUID nodeId, @Valid DriveNodeUpdateRequest request, UUID UserId)
     {
         DriveNode node =driveNodeRepository.findById(nodeId)
                 .orElseThrow(() -> new RuntimeException("Node not found."));

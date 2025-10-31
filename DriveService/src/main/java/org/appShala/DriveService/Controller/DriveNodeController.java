@@ -42,10 +42,10 @@ public class DriveNodeController {
     }
 
     @GetMapping("/content/{parentId}")
-    public ResponseEntity<DriveNodeListResponse> getFolderContent(@PathVariable UUID parentId) {
+    public ResponseEntity<DriveNodeResponse> getFolderContent(@PathVariable UUID parentId) {
         if (parentId.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
         }
-        DriveNodeListResponse response = driveNodeService.getFolderContent(parentId);
+        DriveNodeResponse response = driveNodeService.getFolderContent(parentId);
 
         return ResponseEntity.ok(response);
     }
