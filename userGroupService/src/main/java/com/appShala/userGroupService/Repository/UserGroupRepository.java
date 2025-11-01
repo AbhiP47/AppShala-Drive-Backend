@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface UserGroupRepository extends JpaRepository<UserGroup , UUID> {
     Optional<UserGroup> findByName(String name);
+
+    Optional<UUID> findByNameAndCreatedBy(String groupName, java.util.UUID adminId);
 }

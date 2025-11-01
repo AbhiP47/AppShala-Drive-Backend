@@ -31,7 +31,8 @@ public class UserServiceImpl implements UserService {
 
     private final GroupServiceClient groupServiceClient;
 
-    public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient)
+
+    public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient )
     {
         this.userRepository = userRepository;
         this.groupServiceClient = groupServiceClient;

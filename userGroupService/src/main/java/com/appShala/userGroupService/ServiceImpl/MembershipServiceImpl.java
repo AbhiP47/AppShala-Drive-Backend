@@ -1,4 +1,4 @@
-package com.appShala.userGroupService.Service;
+package com.appShala.userGroupService.ServiceImpl;
 
 import com.appShala.userGroupService.Enum.MemberRole;
 import com.appShala.userGroupService.Model.Membership;
@@ -6,6 +6,8 @@ import com.appShala.userGroupService.Payload.MemberDTO;
 import com.appShala.userGroupService.Payload.MembershipResponse;
 import com.appShala.userGroupService.Repository.MembershipRepository;
 
+import com.appShala.userGroupService.Repository.UserGroupRepository;
+import com.appShala.userGroupService.Service.MembershipService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,13 +16,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class MembershipServiceImpl implements MembershipService{
+public class MembershipServiceImpl implements MembershipService {
 
     private final  MembershipRepository membershipRepository;
+    private final UserGroupRepository userGroupRepository;
 
-    public MembershipServiceImpl(MembershipRepository membershipRepository)
+    public MembershipServiceImpl(MembershipRepository membershipRepository, UserGroupRepository userGroupRepository)
     {
         this.membershipRepository = membershipRepository;
+        this.userGroupRepository = userGroupRepository;
     }
 
     @Override
@@ -78,6 +82,28 @@ public class MembershipServiceImpl implements MembershipService{
     public void deleteMembership(List<UUID> userIds, UUID groupId, UUID adminId) {
         membershipRepository.deleteByGroupIdAndUserIdIn(groupId,userIds);
     }
+
+    @Override
+    public List<UUID> findMemberUserIdsByGroupId(UUID groupId, MemberRole role) {
+        return List.of();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UUID> findMemberUserIdsByGroupId(UUID groupId) {
+        List<UUID> userIds = new ArrayList<>();
+        try {
+            userIds = membershipRepository.findAllUserIdsByGroupIdAndRoleMember(groupId);
+            if(userIds.isEmpty())
+                return Collections.emptyList();
+            return userIds;
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("could not retrieve the userIds");
+        }
+    }
+
 
     private MembershipResponse convertToMembershipResponse(List<Membership> savedMemberships , UUID adminId , UUID groupId) {
 

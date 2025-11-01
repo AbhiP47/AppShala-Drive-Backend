@@ -1,5 +1,6 @@
 package com.appShala.userGroupService.Service;
 
+import com.appShala.userGroupService.Enum.MemberRole;
 import com.appShala.userGroupService.Model.Membership;
 import com.appShala.userGroupService.Payload.MembershipResponse;
 
@@ -12,4 +13,8 @@ public interface MembershipService {
     public MembershipResponse addMembership(List<UUID> userIds , UUID groupId, UUID adminId);
 
     public void deleteMembership(List<UUID> userIds, UUID groupId, UUID adminId);
+
+    public List<UUID> findMemberUserIdsByGroupId(UUID groupId , MemberRole role);
+
+    List<UUID> findMemberUserIdsByGroupId(UUID groupId);
 }

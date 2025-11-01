@@ -51,4 +51,13 @@ public class MembershipController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    // get user Ids of the members in a group by the group Id for the user service
+    @GetMapping("/userId/{groupId}")
+    public ResponseEntity<List<UUID>> getMemberUserIdsByGroupId(@PathVariable("groupId") UUID groupId )
+    {
+        List<UUID> userIds = membershipService.findMemberUserIdsByGroupId(groupId);
+
+        return ResponseEntity.status(HttpStatus.FOUND).body(userIds);
+    }
+
 }

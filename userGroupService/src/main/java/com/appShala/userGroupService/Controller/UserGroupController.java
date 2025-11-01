@@ -5,7 +5,6 @@ import com.appShala.userGroupService.Enum.SortDirection;
 import com.appShala.userGroupService.Payload.UserGroupRequest;
 import com.appShala.userGroupService.Payload.UserGroupResponse;
 import com.appShala.userGroupService.Service.UserGroupService;
-import com.appShala.userGroupService.Service.UserGroupServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -86,4 +85,11 @@ public class UserGroupController {
         return userGroupService.getGroups(userName,sortBy,sortDirection,page,size);
     }
 
+    // get groupId by group name for the user service
+    @GetMapping("/groupId/{groupName}")
+    public ResponseEntity<UUID> getGroupIdByName(@PathVariable("groupName") String groupName , @RequestHeader("adminId") UUID adminId)
+    {
+        UUID groupId = userGroupService.findGroupIdByName(groupName,adminId);
+        return ResponseEntity.status(HttpStatus.FOUND).body(groupId);
+    }
 }

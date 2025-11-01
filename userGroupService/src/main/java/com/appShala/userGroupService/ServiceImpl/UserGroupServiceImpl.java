@@ -1,4 +1,4 @@
-package com.appShala.userGroupService.Service;
+package com.appShala.userGroupService.ServiceImpl;
 
 import com.appShala.userGroupService.Enum.GroupSortBy;
 import com.appShala.userGroupService.Enum.SortDirection;
@@ -8,6 +8,7 @@ import com.appShala.userGroupService.Payload.UserGroupRequest;
 import com.appShala.userGroupService.Payload.UserGroupResponse;
 import com.appShala.userGroupService.Repository.MembershipRepository;
 import com.appShala.userGroupService.Repository.UserGroupRepository;
+import com.appShala.userGroupService.Service.UserGroupService;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class UserGroupServiceImpl implements  UserGroupService{
+public class UserGroupServiceImpl implements UserGroupService {
 
     private final UserGroupRepository userGroupRepository;
     private final MembershipServiceImpl membershipService;
@@ -109,6 +110,16 @@ public class UserGroupServiceImpl implements  UserGroupService{
         Specification<UserGroup> spec = Specification.where(null);
 
         return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UUID findGroupIdByName(String groupName, UUID adminId) {
+        Optional<UUID> groupId = userGroupRepository.findByNameAndCreatedBy(groupName,adminId);
+        if(groupId.isEmpty())
+            throw new RuntimeException("Group not found for the Group Name : "+groupName);
+        else
+        return groupId.get();
     }
 
     private Specification<UserGroup> groupsByMembership(List<UUID> userIds) {
