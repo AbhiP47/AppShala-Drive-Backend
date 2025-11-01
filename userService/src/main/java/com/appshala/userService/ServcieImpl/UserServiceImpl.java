@@ -1,4 +1,4 @@
-package com.appshala.userService.Service;
+package com.appshala.userService.ServcieImpl;
 
 import com.appshala.userService.Client.GroupServiceClient;
 import com.appshala.userService.Enum.Role;
@@ -6,26 +6,19 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
-import com.appshala.userService.Payloads.GroupDetailsRequest;
-import com.appshala.userService.Payloads.UserListResponse;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Repository.UserRepository;
-import com.appshala.userService.Security.PasswordGenerator;
+import com.appshala.userService.Service.UserService;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +26,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final GroupServiceClient groupServiceClient;
@@ -46,13 +39,13 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public UserResponse createUser(UserRequest userRequest) {
+    public UserResponse createUser(UserRequest userRequest , UUID adminId) {
         User user = User.builder()
                 .name(userRequest.getName())
                 .email(userRequest.getEmail())
                 .role(userRequest.getRole())
                 .status(userRequest.getStatus())
-                .password(PasswordGenerator.generateRandomEncodedPassword())
+                .createdBy(adminId)
                 .build();
         User savedUser = userRepository.save(user);
 
@@ -63,7 +56,6 @@ public class UserServiceImpl implements UserService{
         return UserResponse.builder()
                 .name(savedUser.getName())
                 .email(savedUser.getEmail())
-                .id(savedUser.getId())
                 .role(savedUser.getRole())
                 .status(savedUser.getStatus())
                 .build();
@@ -90,45 +82,92 @@ public class UserServiceImpl implements UserService{
     }
 
 
-    public Page<UserListResponse> findUsers(
+    public Page<UserResponse> findUsers(
             Role role,
             Status status,
-            String userGroupName, // This parameter is now unused but kept in the signature
+            String userGroupName,
             UserSortBy sortBy,
             SortDirection sortDirection,
             int page,
-            int size
+            int size,
+            UUID adminId
     ) {
-        // Note: The 'userGroupName' parameter is kept in the signature but ignored,
 
-        // Determine Sort Direction
         Sort.Direction direction = sortDirection.getDirection();
 
-        //  Build Sort and Pageable Object
         Sort sort = Sort.by(direction, sortBy.getDbField());
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        List<UUID> memberUserIds = getMemberIdsByGroupName(userGroupName , adminId);
+        if(memberUserIds == null || memberUserIds.isEmpty())
+            return Page.empty(pageable);
+
         //  Execute Query with only Role and Status filters
         return userRepository.findAll(
-                buildSpecification(role, status), // Only passing the currently supported filters
+                buildSpecification(role, status, memberUserIds ),
                 pageable
-        ).map(this::convertToUserListResponse);
+        ).map(this::convertToUserResponse);
+    }
+
+
+    private Specification<User> buildSpecification(
+            Role role,
+            Status status,
+            List<UUID> userIds) {
+        return (root, query, criteriaBuilder) -> {
+            // List to hold active filter conditions
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (role != null) {
+                predicates.add(criteriaBuilder.equal(root.get("role"), role));
+            }
+
+            if (status != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), status));
+            }
+
+            if (userIds != null && !userIds.isEmpty()) {
+                predicates.add(root.get("id").in(userIds));
+            }
+            // Combine all active predicates with an AND logical operator
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     @Override
-    public UserListResponse convertToUserListResponse(User user) {
-        UserListResponse userListResponse = UserListResponse.builder()
-                .name(user.getName())
-                .role(user.getRole())
-                .email(user.getEmail())
-                .lastActive(user.getLastActive())
-                .status(user.getStatus())
-                .build();
-        return userListResponse;
+    @Transactional(readOnly = true)
+    public List<UUID> getMemberIdsByGroupName(String groupName, UUID adminId) {
+
+        if (groupName == null || groupName.isEmpty() || adminId == null) {
+            return Collections.emptyList();
+        }
+
+        UUID groupId;
+        List<UUID> memberUserIds = Collections.emptyList();
+
+        try {
+            groupId = groupServiceClient.getGroupIdByName(groupName, adminId);
+
+            memberUserIds = groupServiceClient.getMemberUserIdsByGroupId(groupId);
+
+        } catch (RuntimeException e) {
+
+            throw new RuntimeException("Could not retrieve members for group '" + groupName + "'. Reason: " + e.getMessage(), e);
+        }
+
+        if (memberUserIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return memberUserIds;
     }
 
     @Override
-    public List<UserResponse> createUsers(List<UserRequest> userRequests) {
+    public UUID getCurrentAdminId(UUID adminID) {
+        return null;
+    }
+
+    @Override
+    public List<UserResponse> createUsers(List<UserRequest> userRequests , UUID adminId) {
         List<UserResponse> userResponses = new ArrayList<>();
         for(UserRequest userRequest : userRequests)
         {
@@ -137,7 +176,7 @@ public class UserServiceImpl implements UserService{
                     .name(userRequest.getName())
                     .email(userRequest.getEmail())
                     .role(userRequest.getRole())
-                    .password(PasswordGenerator.generateRandomEncodedPassword())
+                    .createdBy(adminId)
                    .build();
             User savedUser = userRepository.save(user);
             userResponses.add(convertToUserResponse(savedUser));
@@ -165,44 +204,6 @@ public class UserServiceImpl implements UserService{
     }
 
 
-    private Specification<User> buildSpecification(
-            Role role,
-            Status status
-    ) {
-        return (root, query, criteriaBuilder) -> {
-            // List to hold active filter conditions
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (role != null) {
-                predicates.add(criteriaBuilder.equal(root.get("role"), role));
-            }
-
-            if (status != null) {
-                predicates.add(criteriaBuilder.equal(root.get("status"), status));
-            }
-
-            // Combine all active predicates with an AND logical operator
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
-    public List<GroupDetailsRequest> getGroupsById(UUID adminId)
-    {
-        if(adminId == null)
-            return Collections.emptyList();
-        try {
-            List<UUID> groupIds = groupServiceClient.getGroupIdsByUserId(adminId);
-            if(groupIds.isEmpty())
-                return Collections.emptyList();
-            List<GroupDetailsRequest> groupDetails = groupServiceClient.getGroupDetailsByIds(groupIds);
-            return groupDetails;
-        }
-        catch (Exception e)
-        {
-            System.err.println("Error fetching the group names for admin" + e.getMessage()) ;
-            return Collections.emptyList();
-        }
-    }
 
 
 }

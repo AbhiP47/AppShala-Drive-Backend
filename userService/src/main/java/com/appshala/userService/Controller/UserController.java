@@ -4,17 +4,14 @@ import com.appshala.userService.Enum.Role;
 import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
-import com.appshala.userService.Payloads.UserListResponse;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Service.UserService;
-import com.appshala.userService.Service.UserServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,9 +28,9 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<UserResponse>  createUser(@RequestBody UserRequest userRequest)
+    public ResponseEntity<UserResponse>  createUser(@Valid  @RequestBody UserRequest userRequest , @RequestHeader("adminId") UUID adminId)
     {
-        UserResponse userResponse = userService.createUser(userRequest);
+        UserResponse userResponse = userService.createUser(userRequest , adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse) ;
     }
 
@@ -44,23 +41,24 @@ public class UserController {
     }
 
     @GetMapping("/getUsers")
-    public Page<UserListResponse> listUsers(
+    public Page<UserResponse> listUsers(
             @RequestParam(required = false) Role role,
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) String userGroupName,
             @RequestParam(defaultValue = "byName") UserSortBy sortBy,
             @RequestParam(defaultValue = "A_TO_Z") SortDirection sortDirection,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestHeader("adminId") UUID adminId
             )
     {
-        return userService.findUsers(role,status,userGroupName,sortBy,sortDirection,page,size);
+        return userService.findUsers(role,status,userGroupName,sortBy,sortDirection,page,size,adminId);
     }
 
     @PostMapping("/createUsers")
-    public ResponseEntity<List<UserResponse>> createUsers(@RequestBody List<UserRequest> userRequests)
+    public ResponseEntity<List<UserResponse>> createUsers(@RequestBody List<UserRequest> userRequests , @RequestHeader("adminId") UUID adminId)
     {
-        List<UserResponse> userResponses = userService.createUsers(userRequests);
+        List<UserResponse> userResponses = userService.createUsers(userRequests , adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponses);
     }
     @DeleteMapping("/deleteUser/{id}")
@@ -69,10 +67,6 @@ public class UserController {
         try{
             userService.deleteUserById(id);
             return ResponseEntity.noContent().build();
-        }
-        catch (UsernameNotFoundException e)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         catch (Exception e)
         {

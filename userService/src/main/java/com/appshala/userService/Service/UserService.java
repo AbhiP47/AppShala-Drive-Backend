@@ -5,30 +5,32 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
-import com.appshala.userService.Payloads.UserListResponse;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    public UserResponse createUser(UserRequest userRequest);
+    public UserResponse createUser(UserRequest userRequest , UUID adminId);
     public User findByEmail(String email);
     public List<UserResponse> findAll();
     public boolean existByEmail(String email);
-    public Page<UserListResponse> findUsers(
+    public Page<UserResponse> findUsers(
             Role role,
             Status status,
-            String userGroupName, // Must include this parameter
+            String userGroupName,
             UserSortBy sortBy,
             SortDirection sortDirection,
             int page,
-            int size
+            int size,
+            UUID adminId
     );
-    public UserListResponse convertToUserListResponse(User user);
-    public List<UserResponse> createUsers(List<UserRequest> userRequests);
+    public List<UserResponse> createUsers(List<UserRequest> userRequests , UUID adminId);
     public void deleteUserById(UUID id);
     public UserResponse updateUserById(UUID id , UserRequest userRequest);
-}
+    public List<UUID> getMemberIdsByGroupName(String groupName, UUID adminId);
+    public UUID getCurrentAdminId(@RequestHeader("currentAdminId") UUID adminID);
+    }

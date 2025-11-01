@@ -19,22 +19,21 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserGroup {
     @Id
-    @Column(name = "group_id")
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false , name = "group_name")
+    @Column(nullable = false , name = "group_name", unique = true)
     private String name;
 
     @CreationTimestamp
-    @Column(nullable = false, name = "created_at")
+    @Column(nullable = false, name = "created_at" , columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
     private LocalDateTime createdAt;
 
     @Column(name="created_by")
     private UUID createdBy;
 
     @UpdateTimestamp
-    @Column(name = "last_modified_at")
+    @Column(name = "last_modified_at" , columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
     private LocalDateTime lastModifiedAt;
 
     @Column(name = "modified_by")

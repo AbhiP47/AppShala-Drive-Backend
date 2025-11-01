@@ -20,6 +20,7 @@ public class Membership {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+
     @Column(name = "group_id" , nullable = false)
     private UUID groupId;
 
@@ -30,6 +31,6 @@ public class Membership {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
-    @Column(name = "joined_at", updatable = false)
+    @Column(name = "joined_at", updatable = false , nullable = false ,columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
     private LocalDateTime joinedAt;
 }

@@ -24,11 +24,8 @@ public class User {
     @Column(name="user_id")
     private UUID id ;
 
-    @Column(nullable = false)
+    @Column(nullable = false )
     private String name;
-
-    @Column(nullable = false)
-    private String password;
 
     @Column(nullable = false , unique = true)
     private String email;
@@ -36,7 +33,7 @@ public class User {
     @Column(name ="email_verified")
     private boolean emailVerified = false;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number" , length = 50)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
@@ -47,17 +44,17 @@ public class User {
     private LocalDateTime lastActive;
 
     @CreationTimestamp
-    @Column(name="created_at" , updatable = false , nullable = false)
+    @Column(name="created_at" , updatable = false , nullable = false , columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
     private LocalDateTime createdAt;
 
-    @Column(name = "created_by")
+    @Column(name = "created_by" , nullable = false)
     private UUID createdBy;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at" , nullable = false  ,columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
     private LocalDateTime updatedAt;
 
-    @Column(name = "updated_by")
+    @Column(name = "updated_by" , nullable = false)
     private UUID updatedBy;
 
     @Column(name = "profile_picture")
@@ -65,7 +62,4 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-
-
 }
