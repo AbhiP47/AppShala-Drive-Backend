@@ -6,6 +6,7 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
+import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Repository.UserRepository;
@@ -40,13 +41,14 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponse createUser(UserRequest userRequest , UUID adminId) {
+    public UserResponse createUser(UserCreationRequest userCreationRequest, UUID adminId) {
         User user = User.builder()
-                .name(userRequest.getName())
-                .email(userRequest.getEmail())
-                .role(userRequest.getRole())
-                .status(userRequest.getStatus())
+                .name(userCreationRequest.getName())
+                .email(userCreationRequest.getEmail())
+                .role(userCreationRequest.getRole())
+                .status(userCreationRequest.getStatus())
                 .createdBy(adminId)
+                .updatedBy(adminId)
                 .build();
         User savedUser = userRepository.save(user);
 
@@ -168,16 +170,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> createUsers(List<UserRequest> userRequests , UUID adminId) {
+    public List<UserResponse> createUsers(List<UserCreationRequest> userCreationRequests, UUID adminId) {
         List<UserResponse> userResponses = new ArrayList<>();
-        for(UserRequest userRequest : userRequests)
+        for(UserCreationRequest userCreationRequest : userCreationRequests)
         {
             User user =
             User.builder()
-                    .name(userRequest.getName())
-                    .email(userRequest.getEmail())
-                    .role(userRequest.getRole())
+                    .name(userCreationRequest.getName())
+                    .email(userCreationRequest.getEmail())
+                    .role(userCreationRequest.getRole())
                     .createdBy(adminId)
+                    .updatedBy(adminId)
                    .build();
             User savedUser = userRepository.save(user);
             userResponses.add(convertToUserResponse(savedUser));

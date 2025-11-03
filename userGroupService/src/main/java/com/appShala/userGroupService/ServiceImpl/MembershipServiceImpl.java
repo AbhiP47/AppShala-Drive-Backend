@@ -37,7 +37,6 @@ public class MembershipServiceImpl implements MembershipService {
                         .groupId(groupId)
                         .userId(userId)
                         .role(userId.equals(adminId) ? MemberRole.MANAGER : MemberRole.MEMBER)
-                        .joinedAt(LocalDateTime.now())
                         .build()
                 ).collect(Collectors.toList());
         return membershipRepository.saveAll(memberships);
@@ -69,7 +68,6 @@ public class MembershipServiceImpl implements MembershipService {
                         .groupId(groupId)
                         .userId(userId)
                         .role(MemberRole.MEMBER)
-                        .joinedAt(LocalDateTime.now())
                         .build())
                 .collect(Collectors.toList());
         List<Membership> savedMemberships = membershipRepository.saveAll(newMemberships);
@@ -111,7 +109,6 @@ List<MemberDTO> memberDetails = savedMemberships.stream().map(membership ->
         MemberDTO.builder()
                 .userId(membership.getUserId())
                 .role(membership.getRole())
-                .joinedAt(membership.getJoinedAt())
                 .build())
         .collect(Collectors.toList());
 MembershipResponse response = MembershipResponse.builder()

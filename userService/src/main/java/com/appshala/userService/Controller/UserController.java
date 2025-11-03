@@ -4,6 +4,7 @@ import com.appshala.userService.Enum.Role;
 import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
+import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Service.UserService;
@@ -28,9 +29,9 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<UserResponse>  createUser(@Valid  @RequestBody UserRequest userRequest , @RequestHeader("adminId") UUID adminId)
+    public ResponseEntity<UserResponse>  createUser(@Valid  @RequestBody UserCreationRequest userCreationRequest, @RequestHeader("adminId") UUID adminId)
     {
-        UserResponse userResponse = userService.createUser(userRequest , adminId);
+        UserResponse userResponse = userService.createUser(userCreationRequest, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse) ;
     }
 
@@ -56,9 +57,9 @@ public class UserController {
     }
 
     @PostMapping("/createUsers")
-    public ResponseEntity<List<UserResponse>> createUsers(@RequestBody List<UserRequest> userRequests , @RequestHeader("adminId") UUID adminId)
+    public ResponseEntity<List<UserResponse>> createUsers(@RequestBody List<UserCreationRequest> userCreationRequests, @RequestHeader("adminId") UUID adminId)
     {
-        List<UserResponse> userResponses = userService.createUsers(userRequests , adminId);
+        List<UserResponse> userResponses = userService.createUsers(userCreationRequests, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponses);
     }
     @DeleteMapping("/deleteUser/{id}")
@@ -77,7 +78,7 @@ public class UserController {
     @PutMapping("/updateUser/{id}")
     public ResponseEntity<UserResponse> updateUserById(@PathVariable UUID id , @RequestBody UserRequest userRequest)
     {
-        UserResponse userResponse =  userService.updateUserById(id,userRequest);
+        UserResponse userResponse =  userService.updateUserById(id, userRequest);
         return ResponseEntity.status(HttpStatus.OK).body(userResponse);
     }
 

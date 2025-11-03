@@ -3,12 +3,13 @@ package com.appshala.userService.Model;
 import com.appshala.userService.Enum.Role;
 import com.appshala.userService.Enum.Status;
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Data
@@ -21,7 +22,6 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="user_id")
     private UUID id ;
 
     @Column(nullable = false )
@@ -37,6 +37,10 @@ public class User {
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
+    @ColumnTransformer(
+            write = "?::user_status",
+            read = "status::text"
+    )
     private Status status;
 
     @UpdateTimestamp
@@ -45,14 +49,14 @@ public class User {
 
     @CreationTimestamp
     @Column(name="created_at" , updatable = false , nullable = false , columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column(name = "created_by" , nullable = false)
     private UUID createdBy;
 
     @UpdateTimestamp
     @Column(name = "updated_at" , nullable = false  ,columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")
-    private LocalDateTime updatedAt;
+    private ZonedDateTime updatedAt;
 
     @Column(name = "updated_by" , nullable = false)
     private UUID updatedBy;
@@ -61,5 +65,9 @@ public class User {
     private String profilePicture;
 
     @Enumerated(EnumType.STRING)
+    @ColumnTransformer(
+            write = "?::user_role",
+            read = "role::text"
+    )
     private Role role;
 }

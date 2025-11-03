@@ -46,7 +46,6 @@ public class UserGroupServiceImpl implements UserGroupService {
         UserGroup group = UserGroup.builder()
                 .name(groupRequest.getName())
                 .createdBy(groupRequest.getAdminId())
-                .createdAt(LocalDateTime.now())
                 .build();
         UserGroup savedGroup = userGroupRepository.save(group);
 

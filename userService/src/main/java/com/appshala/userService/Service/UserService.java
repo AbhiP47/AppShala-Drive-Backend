@@ -5,6 +5,7 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
+import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    public UserResponse createUser(UserRequest userRequest , UUID adminId);
+    public UserResponse createUser(UserCreationRequest userCreationRequest, UUID adminId);
     public User findByEmail(String email);
     public List<UserResponse> findAll();
     public boolean existByEmail(String email);
@@ -28,7 +29,7 @@ public interface UserService {
             int size,
             UUID adminId
     );
-    public List<UserResponse> createUsers(List<UserRequest> userRequests , UUID adminId);
+    public List<UserResponse> createUsers(List<UserCreationRequest> userCreationRequests, UUID adminId);
     public void deleteUserById(UUID id);
     public UserResponse updateUserById(UUID id , UserRequest userRequest);
     public List<UUID> getMemberIdsByGroupName(String groupName, UUID adminId);
