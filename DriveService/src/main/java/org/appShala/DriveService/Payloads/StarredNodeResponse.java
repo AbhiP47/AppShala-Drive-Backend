@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -13,8 +14,8 @@ import java.util.UUID;
 public class StarredNodeResponse
 {
     private UUID nodeId;
-    private UUID sharedBy;
-    private Boolean IsShared;
-    private ZonedDateTime SharedAt;
-    private ZonedDateTime SharedWith;
+    private UUID starredBy;
+    private Boolean IsStarred;
+    private LocalDateTime StarredAt;
+    private LocalDateTime StarredWith;
 }

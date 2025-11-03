@@ -12,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class DriveNodeCreationRequest
 {
+    public String getName;
     @NotBlank(message = "name is required")
     private String name;
 

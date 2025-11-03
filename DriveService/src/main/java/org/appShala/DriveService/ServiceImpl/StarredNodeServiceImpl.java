@@ -26,8 +26,8 @@ public class StarredNodeServiceImpl implements StarredNodeService {
     private StarredNodeResponse mapToResponse(StarredNode starredNode)
     {
         StarredNodeResponse response =new StarredNodeResponse();
-        response.setstarredAt(starredNode.getStarredAt());
-        response.setIsStarred(starredNode.getIsStarred());
+        response.setStarredAt(starredNode.getStarredAt());
+        response.setIsStarred(starredNode.isStarred());
         response.setStarredBy(starredNode.getStarredBy());
         return response;
     }
@@ -40,7 +40,7 @@ public class StarredNodeServiceImpl implements StarredNodeService {
                 .orElseThrow(() -> new RuntimeException("DriveNode not found with ID: " + nodeId));
 
         Optional<StarredNode> optionalStar = starredNodeRepository.findByDriveNodeIdAndStarredBy(nodeId, UserId);
-        StarredNode star;
+        StarredNode star = new StarredNode();
         if (optionalStar.isPresent()) {
             // Case 1: Record exists - update the status
             star = optionalStar.get();
@@ -53,18 +53,17 @@ public class StarredNodeServiceImpl implements StarredNodeService {
         } else {
             return new StarredNodeResponse();
         }
-        star.setIsStarred(isStarred);
+        star.setStarred(isStarred);
         StarredNode savedStar = starredNodeRepository.save(star);
         return mapToResponse(savedStar);
     }
-
     @Override
     @Transactional
     public List<StarredNodeResponse> getStarredNodesForUser(UUID UserId)
     {
         List<StarredNode> starredNodes=starredNodeRepository.findAllByStarredBy(UserId).stream()
-                .filter(StarredNode::getIsStarred)
-                .collect(Collectors.toList());
+                .filter(StarredNode::isStarred)
+                .toList();
         return starredNodes.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

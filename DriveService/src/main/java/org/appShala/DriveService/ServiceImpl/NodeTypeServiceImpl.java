@@ -11,20 +11,22 @@ import java.util.UUID;
 @Service
 public class NodeTypeServiceImpl implements NodeTypeService
 {
+    private final NodeTypeRepository nodeTypeRepository;
     public NodeTypeServiceImpl(NodeTypeRepository nodeTypeRepository){
+        this.nodeTypeRepository = nodeTypeRepository;
     }
 
     @Override
     @Transactional
     public List<NodeType> getAllNodeTypes() {
-        return NodeTypeRepository.findAll();
+        return nodeTypeRepository.findAll();
     }
 
     @Override
     @Transactional
     public NodeType getNodeTypeById(UUID id)
     {
-        return NodeTypeRepository.findById(id)
+        return nodeTypeRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("NodeType metadata not found"));
     }
 
@@ -32,7 +34,7 @@ public class NodeTypeServiceImpl implements NodeTypeService
     @Transactional
     public NodeType getByFileExtension(String extension)
     {
-        return NodeTypeRepository.findByFileExtension(extension)
+        return nodeTypeRepository.findByFileExtension(extension)
                 .orElseThrow(()-> new RuntimeException("File Extension not found"));
     }
 }

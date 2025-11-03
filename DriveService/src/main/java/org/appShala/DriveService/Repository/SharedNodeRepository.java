@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface SharedNodeRepository extends JpaRepository<SharedNode, UUID>
 {
     SharedNode findByDriveNodeIdAndSharedWith(UUID nodeId, UUID sharedWithId);
+    SharedNode findByDriveNodeIdAndStarredBy(UUID nodeId, UUID starredBy);
+    SharedNode findUserPermissionForNode(UUID nodeId, UUID userId);
 
     List<SharedNode> findAllBySharedWith(UUID sharedWithId);
 }

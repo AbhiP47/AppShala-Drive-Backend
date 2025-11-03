@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class SharedNodeServiceImpl implements SharedNodeService
 {
     private final SharedNodeRepository sharedNodeRepository;
     private final DriveNodeRepository driveNodeRepository;
-    public SharedNodeServiceImpl(SharedNodeService sharedNodeService , DriveNodeRepository driveNodeRepository)
+    public SharedNodeServiceImpl(SharedNodeRepository sharedNodeRepository, DriveNodeRepository driveNodeRepository)
     {
         this.sharedNodeRepository = sharedNodeRepository;
         this.driveNodeRepository = driveNodeRepository;
@@ -27,31 +28,28 @@ public class SharedNodeServiceImpl implements SharedNodeService
     private SharedNodeResponse mapToResponse(SharedNode sharedNode)
     {
         SharedNodeResponse response = new SharedNodeResponse();
-        response.setSharedWithId(sharedNode.getSharedWith());
+        response.setSharedWithId(sharedNode.getSharedWithId());
         response.setPermission(sharedNode.getPermission());
         response.setSharedAt(sharedNode.getSharedAt());
         return response;
     }
-
     @Override
     @Transactional
     public SharedNodeResponse shareNode(UUID nodeId, SharedNodeRequest request, UUID sharingUserId)
     {
-        SharedNode shareToSave = SharedNodeRepository.findByDriveNodeIdAndSharedWith(nodeId , request.getSharedWithId());
+        SharedNode shareToSave = sharedNodeRepository.findByDriveNodeIdAndSharedWith(nodeId , request.getSharedWithId());
         if(shareToSave == null)
         {
             shareToSave = new SharedNode();
             driveNodeRepository.findById(nodeId).ifPresent(shareToSave::setDriveNode);
             shareToSave.setSharedWithEntity(request.getSharedWithEntity());
             shareToSave.setSharedAt(LocalDateTime.now());
-            shareToSave.setSharedWith(request.getSharedWith);
+            shareToSave.setSharedWithId(request.getSharedWithId());
         }
         shareToSave.setPermission(request.getPermission());
         shareToSave.setSharedBy(sharingUserId);
         shareToSave.setRevoked(false);
-
         SharedNode savedShare = sharedNodeRepository.save(shareToSave);
-
         return mapToResponse(savedShare);
     }
 
@@ -59,10 +57,11 @@ public class SharedNodeServiceImpl implements SharedNodeService
     @Transactional
     public void revokePermission(UUID nodeId, UUID sharedWithId, UUID revokingUserId)
     {
-        SharedNode share = SharedNodeRepository.findByDriveNodeidAdSharedId(nodeId , sharedWithId);
-        if(share != null)
+        SharedNode share = sharedNodeRepository.findByDriveNodeIdAndSharedWith(nodeId , sharedWithId);
+
+        if(share == null)
         {
-           return;
+            return;
         }
         share.setRevoked(true);
         sharedNodeRepository.save(share);
@@ -73,8 +72,8 @@ public class SharedNodeServiceImpl implements SharedNodeService
     public List<SharedNodeResponse> getNodesSharedWithMe(UUID userId)
     {
         List<SharedNode> sharedNodes = sharedNodeRepository.findAllBySharedWith(userId).stream()
-                .filter(share -> !share.getRevoked()) // Only include active shares
-                .collect(Collectors.toList());
+                .filter(share -> !share.getRevoked())
+                .toList();
 
         return sharedNodes.stream()
                 .map(this::mapToResponse)
@@ -85,14 +84,15 @@ public class SharedNodeServiceImpl implements SharedNodeService
     @Transactional
     public boolean hasPermission(UUID nodeId, UUID userId, String requiredPermission)
     {
-        driveNodeRepository.findById(nodeId).ifPresent(node ->
-        {
-            if (node.getOwnerId().equals(userId))
-                return true;
-        });
-        SharedNode share = sharedNodeRepository.findUserPermissionForNode(nodeId, userId).orElse(null);
-        if (share != null && !share.getRevoked()) {
+        boolean isOwner = driveNodeRepository.findById(nodeId)
+                .map(node -> node.getOwnerId().equals(userId))
+                .orElse(false);
+
+        if (isOwner) {
+            return true;
         }
-        return true;
+        SharedNode share = sharedNodeRepository.findUserPermissionForNode(nodeId, userId);
+
+        return share != null && !share.getRevoked();
     }
 }

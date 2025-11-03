@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class StarredNodeRequest
 {
     @NotNull(message = "isStarred status is required.")
-    private Boolean isStarred;
+    private Boolean IsStarred;
 
 }

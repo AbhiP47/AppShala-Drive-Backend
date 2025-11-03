@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -15,10 +15,10 @@ public class SharedNodeResponse
     private String Permission;
     private String status;
     private UUID nodeId;
-    private String SharedWithId;
+    private UUID SharedWithId;
     private String SharedWithName;
     private String SharedWithDescription;
-    private String SharedWith;
     private UUID SharedBy;
-    private ZonedDateTime SharedAt;
+    private LocalDateTime SharedAt;
+    private String SharedWith;
 }

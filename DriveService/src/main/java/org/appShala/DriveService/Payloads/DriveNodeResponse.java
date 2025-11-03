@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -16,9 +18,12 @@ public class DriveNodeResponse {
     private String Type;
     private Long sizeInBytes;
     private UUID ownerId;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime lastModifiedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastModifiedAt;
     private Boolean isShared;
     private Boolean isStarred;
+    private Integer totalNodes;
+    private List<DriveNodeResponse> nodes;
+    private List<StarredNodeResponse> starredNodes;
 
 }

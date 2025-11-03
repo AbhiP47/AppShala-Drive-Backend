@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -17,8 +18,8 @@ public class DriveNodeUpdateRequest
     @Size(min=1, max=255 , message = "Name should be within 255 letters")
     private String name;
     private String description;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime lastModifiedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastModifiedAt;
     private Boolean isShared;
     private Boolean isStarred;
     private Integer totalNodes;

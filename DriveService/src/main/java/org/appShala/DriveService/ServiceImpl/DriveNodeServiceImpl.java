@@ -45,8 +45,7 @@ public class DriveNodeServiceImpl implements DriveNodeService {
         response.setName(node.getName());
         response.setType(node.getType());
         response.setCreatedAt(node.getCreatedAt());
-        boolean isShared = SharedNodeRepository.findByDriveNodeIdAndStarredBy(node.getId(), requestingUserId).isPresent();
-        response.setShared(isShared);
+        response.setIsShared(node.getIsShared());
 
         return response;
     }
@@ -84,7 +83,7 @@ public class DriveNodeServiceImpl implements DriveNodeService {
         List<DriveNodeResponse> responses = children.stream()
                 .map(node-> mapToResponse(node, requestingUserid))
                 .collect(Collectors.toList());
-        DriveNodeListResponse ListResponse = new DriveNodeListResponse();
+        DriveNodeResponse ListResponse = new DriveNodeResponse();
         ListResponse.setNodes(responses);
         ListResponse.setTotalNodes(responses.size());
         return ListResponse;

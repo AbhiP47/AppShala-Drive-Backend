@@ -20,7 +20,8 @@ public class SharedNodeRequest
     private String sharedNodeDescription;
     private ZonedDateTime sharedNodeLastModifiedAt;
     @NotNull(message = "Recipient entity type is required.")
-    private String sharedWith;
+    private UUID SharedWith;
     @NotNull(message="Permission level is required ")
     private String Permission;
+    private String sharedWithEntity;
 }

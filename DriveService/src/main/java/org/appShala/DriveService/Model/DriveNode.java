@@ -64,4 +64,7 @@ public class DriveNode {
 
     public String Type;
 
+    @Column(name="is_shared" , nullable= false)
+    private Boolean isShared;
+
 }

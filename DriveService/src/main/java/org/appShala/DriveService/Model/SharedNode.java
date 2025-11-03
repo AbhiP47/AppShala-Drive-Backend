@@ -27,7 +27,7 @@ public class SharedNode {
     private DriveNode driveNode;
 
     @Column(name = "shared_with" , nullable = false)
-    private UUID sharedWith;
+    private UUID sharedWithId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "shared_with_entity", nullable = false)
@@ -35,7 +35,7 @@ public class SharedNode {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "permission" , nullable = false)
-    private Permission permission;
+    private String permission;
 
     @Column(name = "shared_at" , nullable = false)
     private LocalDateTime sharedAt;
@@ -45,4 +45,7 @@ public class SharedNode {
 
     @Column(name = "shared_by", nullable = false)
     private UUID sharedBy;
+
+    @Column(name="is_shared" , nullable= false)
+    private Boolean isShared;
 }
