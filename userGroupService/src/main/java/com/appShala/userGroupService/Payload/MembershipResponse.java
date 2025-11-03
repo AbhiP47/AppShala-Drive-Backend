@@ -1,6 +1,5 @@
 package com.appShala.userGroupService.Payload;
 
-import com.appShala.userGroupService.Model.Membership;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
