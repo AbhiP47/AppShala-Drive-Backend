@@ -11,20 +11,20 @@ import java.util.UUID;
 
 public interface MembershipRepository extends JpaRepository<Membership , UUID> {
 
-    @Query("SELECT m.groupId FROM Membership m WHERE m.userId = :userId")
+    @Query("SELECT m.group.id FROM Membership m WHERE m.userId = :userId")
     List<UUID> findAllGroupIdsByUserId(UUID userId);
 
     @Modifying
-    @Query("DELETE FROM Membership m WHERE m.groupId = :groupId")
+    @Query("DELETE FROM Membership m WHERE m.group.id = :groupId")
     void deleteByGroupId(UUID groupId);
 
-    @Query("SELECT m.userId FROM Membership m WHERE m.groupId = :groupId")
+    @Query("SELECT m.userId FROM Membership m WHERE m.group.id = :groupId")
     List<UUID> findUserIdsByGroupId(UUID groupId);
 
     @Modifying
-    @Query("DELETE FROM Membership m WHERE m.groupId = :groupId AND m.userId IN :userIds")
+    @Query("DELETE FROM Membership m WHERE m.group.id = :groupId AND m.userId IN :userIds")
     void deleteByGroupIdAndUserIdIn(UUID groupId, List<UUID> userIds);
 
-    @Query("SELECT m.userId FROM Membership m WHERE m.groupId = :groupId AND m.role = 'MEMBER'")
+    @Query("SELECT m.userId FROM Membership m WHERE m.group.id = :groupId AND m.role = 'MEMBER'")
     List<UUID> findAllUserIdsByGroupIdAndRoleMember(UUID groupId);
 }

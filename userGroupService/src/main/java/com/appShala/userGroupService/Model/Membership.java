@@ -23,14 +23,14 @@ public class Membership {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
-    @Column(name = "group_id" , nullable = false)
-    private UUID groupId;
+    @ManyToOne(fetch =FetchType.LAZY)
+    @JoinColumn(name = "group_id" , referencedColumnName = "id" , nullable = false)
+    private UserGroup group;
 
     @Column(name = "user_id" , nullable = false)
     private UUID userId;
 
-    @Column(name = "member_role" , nullable = false)
+    @Column(nullable = false)
     @ColumnTransformer(
             write = "?::member_role",
             read = "role::text"

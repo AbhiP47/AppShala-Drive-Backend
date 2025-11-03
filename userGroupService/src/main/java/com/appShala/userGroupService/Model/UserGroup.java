@@ -18,12 +18,14 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "user_group")
 public class UserGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name="id")
     private UUID id;
 
-    @Column(nullable = false , name = "group_name", unique = true)
+    @Column(nullable = false , name="name" ,  unique = true)
     private String name;
 
     @CreationTimestamp
