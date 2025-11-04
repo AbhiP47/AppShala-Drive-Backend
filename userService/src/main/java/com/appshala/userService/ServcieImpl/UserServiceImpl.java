@@ -7,19 +7,25 @@ import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
 import com.appshala.userService.Payloads.UserCreationRequest;
+import com.appshala.userService.Event.UserDeletedEvent;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Repository.UserRepository;
 import com.appshala.userService.Service.UserService;
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,16 +33,23 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final GroupServiceClient groupServiceClient;
 
+    private final KafkaTemplate<String , UserDeletedEvent> kafkaTemplate;
 
-    public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient )
+    private final String userTopic;
+
+
+    public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient , KafkaTemplate<String , UserDeletedEvent> kafkaTemplate , @Value("${kafka-topic.user-events}") String userTopic)
     {
         this.userRepository = userRepository;
         this.groupServiceClient = groupServiceClient;
+        this.kafkaTemplate = kafkaTemplate;
+        this.userTopic = userTopic;
     }
 
 
@@ -189,10 +202,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUserById(UUID id) {
         User user  = userRepository.findById(id)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found with ID :"+id));
         userRepository.delete(user);
+        log.info("user deleted successfully from the database : ID {}",id);
+        UserDeletedEvent event = new UserDeletedEvent(id, LocalDateTime.now().toString());
+        kafkaTemplate.send(userTopic , id.toString() , event)
+                .whenComplete((result , ex )->{
+                    if(ex==null)
+                    {
+                        log.info("KAFKA : successfully published UserDeletedEvent for user ID {} to topic {}" , id , userTopic);
+                    }else{
+                        log.error("KAFKA ERROR : Failed to publish UserDeletedEvent for user ID {}: {}", id, ex.getMessage());
+                    }
+                });
+
     }
 
     @Override

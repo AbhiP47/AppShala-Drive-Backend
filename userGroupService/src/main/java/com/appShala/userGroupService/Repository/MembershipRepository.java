@@ -5,6 +5,7 @@ import com.appShala.userGroupService.Model.Membership;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,4 +28,8 @@ public interface MembershipRepository extends JpaRepository<Membership , UUID> {
 
     @Query("SELECT m.userId FROM Membership m WHERE m.group.id = :groupId AND m.role = 'MEMBER'")
     List<UUID> findAllUserIdsByGroupIdAndRoleMember(UUID groupId);
+
+    @Modifying
+    @Query("DELETE FROM Membership m WHERE m.userId = :userId")
+    int deleteByUserId(@Param("userId") UUID userId);
 }
