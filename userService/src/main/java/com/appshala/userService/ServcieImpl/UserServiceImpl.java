@@ -6,18 +6,15 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
-<<<<<<< Updated upstream
 import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
-=======
 import com.appshala.userService.Payloads.*;
-import com.appshala.userService.Event.UserDeletedEvent;
->>>>>>> Stashed changes
 import com.appshala.userService.Repository.UserRepository;
 import com.appshala.userService.Service.UserService;
 import com.opencsv.bean.CsvToBeanBuilder;
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,12 +23,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-<<<<<<< Updated upstream
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-=======
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
@@ -39,10 +34,10 @@ import java.io.Reader;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
->>>>>>> Stashed changes
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
@@ -211,8 +206,6 @@ public class UserServiceImpl implements UserService {
         User user  = userRepository.findById(id)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found with ID :"+id));
         userRepository.delete(user);
-<<<<<<< Updated upstream
-=======
         log.info("user deleted successfully from the database : ID {}",id);
         UserDeletedEvent event = new UserDeletedEvent(id, Instant.now().toString());
         kafkaTemplate.send(userTopic , id.toString() , event)
@@ -225,7 +218,7 @@ public class UserServiceImpl implements UserService {
                     }
                 });
 
->>>>>>> Stashed changes
+
     }
 
     @Override
