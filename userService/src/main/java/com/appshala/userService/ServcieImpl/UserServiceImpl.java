@@ -10,11 +10,18 @@ import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Event.UserDeletedEvent;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
+<<<<<<< Updated upstream
+=======
+import com.appshala.userService.Payloads.*;
+>>>>>>> Stashed changes
 import com.appshala.userService.Repository.UserRepository;
 import com.appshala.userService.Service.UserService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
+<<<<<<< Updated upstream
 import org.springframework.beans.factory.annotation.Value;
+=======
+>>>>>>> Stashed changes
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +31,25 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+<<<<<<< Updated upstream
 
 import java.time.LocalDateTime;
+=======
+>>>>>>> Stashed changes
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+<<<<<<< Updated upstream
+=======
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+>>>>>>> Stashed changes
 import java.util.stream.Collectors;
 
 @Service
@@ -219,6 +239,10 @@ public class UserServiceImpl implements UserService {
                     }
                 });
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     }
 
     @Override
