@@ -6,11 +6,17 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
+<<<<<<< Updated upstream
 import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
+=======
+import com.appshala.userService.Payloads.*;
+import com.appshala.userService.Event.UserDeletedEvent;
+>>>>>>> Stashed changes
 import com.appshala.userService.Repository.UserRepository;
 import com.appshala.userService.Service.UserService;
+import com.opencsv.bean.CsvToBeanBuilder;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,10 +26,20 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+<<<<<<< Updated upstream
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+=======
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+>>>>>>> Stashed changes
 import java.util.stream.Collectors;
 
 @Service
@@ -169,6 +185,8 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+
+
     @Override
     public List<UserResponse> createUsers(List<UserCreationRequest> userCreationRequests, UUID adminId) {
         List<UserResponse> userResponses = new ArrayList<>();
@@ -193,6 +211,21 @@ public class UserServiceImpl implements UserService {
         User user  = userRepository.findById(id)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found with ID :"+id));
         userRepository.delete(user);
+<<<<<<< Updated upstream
+=======
+        log.info("user deleted successfully from the database : ID {}",id);
+        UserDeletedEvent event = new UserDeletedEvent(id, Instant.now().toString());
+        kafkaTemplate.send(userTopic , id.toString() , event)
+                .whenComplete((result , ex )->{
+                    if(ex==null)
+                    {
+                        log.info("KAFKA : successfully published UserDeletedEvent for user ID {} to topic {}" , id , userTopic);
+                    }else{
+                        log.error("KAFKA ERROR : Failed to publish UserDeletedEvent for user ID {}: {}", id, ex.getMessage());
+                    }
+                });
+
+>>>>>>> Stashed changes
     }
 
     @Override
@@ -206,7 +239,139 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
         return convertToUserResponse(savedUser);
     }
+    @Override
+    public boolean checkUserExistsById(UUID userId) {
+        return userRepository.existsById(userId);
+    }
 
+    @Override
+    public ImportResult processBulkImport(MultipartFile file, UUID adminId) throws Exception {
+        List<UserCsvRecord> allRecords;
+
+        try(Reader reader = new InputStreamReader(file.getInputStream()))
+        {
+            allRecords = new CsvToBeanBuilder<UserCsvRecord>(reader)
+                    .withType(UserCsvRecord.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
+        }
+        catch(Exception e)
+        {
+            throw new Exception("Error parsing CSV file : " +e.getMessage());
+        }
+
+        List<UserCsvRecord> usersToProcess = new ArrayList<>();
+        List<Map<String,String>> invalidEntries = new ArrayList<>();
+        Set<String> emailsInCsv = new HashSet<>();
+
+        AtomicInteger rowIndex = new AtomicInteger(1);
+        for(UserCsvRecord record : allRecords)
+        {
+            Map<String,String> error = validateRecord(record, emailsInCsv , rowIndex.get());
+            if(!error.isEmpty())
+                invalidEntries.add(error);
+            else {
+                usersToProcess.add(record);
+                emailsInCsv.add(record.getEmail().toLowerCase());
+            }
+            rowIndex.getAndIncrement();
+        }
+        if(!usersToProcess.isEmpty())
+        {
+            Set<String> uniqueEmails = usersToProcess.stream()
+                    .map(r -> r.getEmail().toLowerCase())
+                    .collect(Collectors.toSet());
+            Set<String> existingEmails = userRepository.findExistingEmails(new ArrayList<>(uniqueEmails));
+            usersToProcess.removeIf(record -> {
+                if(existingEmails.contains(record.getEmail().toLowerCase()))
+                {
+                    invalidEntries.add(Map.of(
+                            "Line",String.valueOf(rowIndex.getAndIncrement()),
+                            "Email", record.getEmail(),
+                            "Error" , "Email already exists in the system."
+                    ));
+                    return true;
+                }
+                return  false;
+            });
+        }
+        if (!invalidEntries.isEmpty()) {
+            return ImportResult.builder()
+                    .status("partial success")
+                    .message(invalidEntries.size()+"errors. Some essential fields are missing or duplicated. No users were created.")
+                    .errorCount(invalidEntries.size())
+                    .errorDetails(invalidEntries)
+                    .build();
+        }
+        if(usersToProcess.isEmpty())
+        {
+            return ImportResult.builder()
+                    .status("Failure")
+                    .message("No valid users found to import.")
+                    .errorCount(0)
+                    .build();
+        }
+         return createUsersAndSendInvites(usersToProcess);
+    }
+
+
+    private Map<String, String> validateRecord(UserCsvRecord record, Set<String> emailsInCsv, int rowIndex) {
+        List<String> errors = new ArrayList<>();
+        String emailNormalized = record.getEmail() != null ? record.getEmail().trim().toLowerCase() : null;
+        if (record.getName() == null || record.getName().isBlank() ||
+                record.getRole() == null || record.getRole().isBlank() ||
+                record.getEmail() == null || record.getEmail().isBlank()) {
+            errors.add("One or more essential fields (Name, Role, Email) are missing.");
+        }
+        if (emailNormalized != null && emailsInCsv.contains(emailNormalized)) {
+            errors.add("Email is duplicated within the uploaded file.");
+        }
+        if(errors.isEmpty())
+            return Collections.emptyMap();
+        else{
+            return Map.of(
+                    "Line",String.valueOf(rowIndex),
+                    "Email" , record.getEmail() != null ? record.getEmail() : "MISSING",
+                    "Error" , String.join("|" , errors)
+            );
+        }
+    }
+
+
+    @Transactional
+    protected ImportResult createUsersAndSendInvites(List<UserCsvRecord> records) {
+        List<User> newUsers = records.stream()
+                .map(record -> {
+                    String token = UUID.randomUUID().toString();
+//                    sendInvitationEmail(record.getEmail(),record.getName(),token);
+                    return User.builder()
+                            .name(record.getName())
+                            .role(Role.valueOf(record.getRole().toString()))
+                            .email(record.getEmail().toLowerCase())
+                            .status(Status.INVITED)
+                            .build();
+
+                }).collect(Collectors.toList());
+        return ImportResult.builder()
+                .status("Success")
+                .message("Bulk Import completed. Invitation emails sent to "+ newUsers.size() + " users.")
+                .build();
+
+    }
+
+//    private void sendInvitationEmail(String toEmail, String name, String token) {
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("no-reply@your-app.com");
+//        message.setTo(toEmail);
+//        message.setSubject("You've been invited to join!");
+//
+//        String inviteLink = "https://your-frontend.com/verify-invite?token=" + token;
+//        message.setText(String.format("Hello %s,\n\nPlease click the link to set up your account: %s", name, inviteLink));
+//
+//        // This is where you would call emailSender.send(message) in a real app.
+//        System.out.println("--- MOCK EMAIL SENT to " + toEmail + " with token: " + token);
+//    }
 
 
 

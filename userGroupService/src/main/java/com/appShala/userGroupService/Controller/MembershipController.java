@@ -4,6 +4,7 @@ import com.appShala.userGroupService.Payload.MembershipResponse;
 import com.appShala.userGroupService.Repository.MembershipRepository;
 import com.appShala.userGroupService.Service.MembershipService;
 import com.appShala.userGroupService.Service.UserGroupService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/membership")
+@RequestMapping("/api/group/membership")
 public class MembershipController {
 
     private final UserGroupService groupService;
@@ -56,7 +58,7 @@ public class MembershipController {
     public ResponseEntity<List<UUID>> getMemberUserIdsByGroupId(@PathVariable("groupId") UUID groupId )
     {
         List<UUID> userIds = membershipService.findMemberUserIdsByGroupId(groupId);
-
+        log.info(" get user Ids of the members in a group by the group Id for the user service : TRIGERRED");
         return ResponseEntity.status(HttpStatus.FOUND).body(userIds);
     }
 
