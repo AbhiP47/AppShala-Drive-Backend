@@ -5,6 +5,7 @@ import com.appShala.userGroupService.Enum.SortDirection;
 import com.appShala.userGroupService.Payload.UserGroupRequest;
 import com.appShala.userGroupService.Payload.UserGroupResponse;
 import com.appShala.userGroupService.Service.UserGroupService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/group")
 public class UserGroupController {
@@ -87,6 +89,7 @@ public class UserGroupController {
     @GetMapping("/groupId/{groupName}")
     public ResponseEntity<UUID> getGroupIdByName(@PathVariable("groupName") String groupName , @RequestHeader("adminId") UUID adminId)
     {
+        log.info("get groupId by group name for the user service  TRIGGERED");
         UUID groupId = userGroupService.findGroupIdByName(groupName,adminId);
         return ResponseEntity.status(HttpStatus.FOUND).body(groupId);
     }

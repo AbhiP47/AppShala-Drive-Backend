@@ -9,6 +9,7 @@ import com.appShala.userGroupService.Repository.MembershipRepository;
 
 import com.appShala.userGroupService.Repository.UserGroupRepository;
 import com.appShala.userGroupService.Service.MembershipService;
+import com.appShala.userGroupService.client.UserServiceClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +22,13 @@ public class MembershipServiceImpl implements MembershipService {
 
     private final  MembershipRepository membershipRepository;
     private final UserGroupRepository userGroupRepository;
+    private final UserServiceClient userServiceClient;
 
-    public MembershipServiceImpl(MembershipRepository membershipRepository, UserGroupRepository userGroupRepository)
+    public MembershipServiceImpl(MembershipRepository membershipRepository, UserGroupRepository userGroupRepository , UserServiceClient userServiceClient)
     {
         this.membershipRepository = membershipRepository;
         this.userGroupRepository = userGroupRepository;
+        this.userServiceClient = userServiceClient;
     }
 
     @Override

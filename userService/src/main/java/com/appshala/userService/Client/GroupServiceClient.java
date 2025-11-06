@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 // TO be used in userService for searching users using group filter
-@FeignClient(name = "USERGROUPSERVICE" , path = "/api")
+@FeignClient(name = "USERGROUPSERVICE" , path = "/api/group")
 public interface GroupServiceClient {
 
     // get the groupId by groupName
-    @GetMapping("group/groupId/{groupName}")
+    @GetMapping("groupId/{groupName}")
     UUID getGroupIdByName(@PathVariable("groupName") String groupName , @RequestHeader("adminId") UUID callingAdminId);
 
     @GetMapping("membership/userId/{groupId}")
