@@ -27,4 +27,8 @@ public interface MembershipRepository extends JpaRepository<Membership , UUID> {
 
     @Query("SELECT m.userId FROM Membership m WHERE m.groupId = :groupId AND m.role = 'MEMBER'")
     List<UUID> findAllUserIdsByGroupIdAndRoleMember(UUID groupId);
+
+
+
+    int deleteByUserId(UUID deletedUserId);
 }

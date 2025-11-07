@@ -6,32 +6,23 @@ import com.appshala.userService.Enum.SortDirection;
 import com.appshala.userService.Enum.Status;
 import com.appshala.userService.Enum.UserSortBy;
 import com.appshala.userService.Model.User;
-<<<<<<< Updated upstream
 import com.appshala.userService.Payloads.UserCreationRequest;
 import com.appshala.userService.Payloads.UserRequest;
 import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Payloads.*;
-=======
-import com.appshala.userService.Payloads.*;
-import com.appshala.userService.Event.UserDeletedEvent;
-import com.appshala.userService.Payloads.UserRequest;
-import com.appshala.userService.Payloads.UserResponse;
->>>>>>> Stashed changes
 import com.appshala.userService.Repository.UserRepository;
 import com.appshala.userService.Service.UserService;
+import com.appshala.userService.event.UserDeletedEvent;
 import com.opencsv.bean.CsvToBeanBuilder;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
-<<<<<<< Updated upstream
-=======
 import org.springframework.beans.factory.annotation.Value;
-
->>>>>>> Stashed changes
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,13 +30,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-<<<<<<< Updated upstream
 import org.springframework.web.multipart.MultipartFile;
 
-=======
-
-import org.springframework.web.multipart.MultipartFile;
->>>>>>> Stashed changes
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Instant;
@@ -60,11 +46,17 @@ public class UserServiceImpl implements UserService {
 
     private final GroupServiceClient groupServiceClient;
 
+    private final KafkaTemplate<String , UserDeletedEvent> kafkaTemplate;
 
-    public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient )
+    private final String userTopic;
+
+    public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient , KafkaTemplate<String , UserDeletedEvent> kafkaTemplate,
+                           @Value("${kafka-topic.user-events}") String userTopic)
     {
         this.userRepository = userRepository;
         this.groupServiceClient = groupServiceClient;
+        this.kafkaTemplate = kafkaTemplate; // INJECTED
+        this.userTopic = userTopic;
     }
 
 
@@ -235,10 +227,6 @@ public class UserServiceImpl implements UserService {
                     }
                 });
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     }
 
     @Override
