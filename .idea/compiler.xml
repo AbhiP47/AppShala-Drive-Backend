@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
         <module name="eurekaServer" />
+        <module name="driveService" />
       </profile>
       <profile name="Annotation profile for userGroupService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -33,8 +34,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="DriveService" />
       </profile>
