@@ -1,5 +1,4 @@
 package com.appshala.userService.ServcieImpl;
-
 import com.appshala.userService.Client.GroupServiceClient;
 import com.appshala.userService.Enum.Role;
 import com.appshala.userService.Enum.SortDirection;
@@ -12,6 +11,7 @@ import com.appshala.userService.Payloads.UserResponse;
 import com.appshala.userService.Payloads.*;
 import com.appshala.userService.Repository.UserRepository;
 import com.appshala.userService.Service.UserService;
+import com.appshala.userService.Util.Helper;
 import com.appshala.userService.event.UserDeletedEvent;
 import com.opencsv.bean.CsvToBeanBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -26,12 +26,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Instant;
@@ -50,30 +51,54 @@ public class UserServiceImpl implements UserService {
 
     private final String userTopic;
 
+    private final MailService mailService;
+
+    private final Helper helper;
+
     public UserServiceImpl(UserRepository userRepository , GroupServiceClient groupServiceClient , KafkaTemplate<String , UserDeletedEvent> kafkaTemplate,
-                           @Value("${kafka-topic.user-events}") String userTopic)
+                           @Value("${kafka-topic.user-events}") String userTopic , MailService mailService , Helper helper)
     {
         this.userRepository = userRepository;
         this.groupServiceClient = groupServiceClient;
-        this.kafkaTemplate = kafkaTemplate; // INJECTED
+        this.kafkaTemplate = kafkaTemplate;
         this.userTopic = userTopic;
+        this.mailService = mailService;
+        this.helper = helper;
     }
 
 
     @Override
     public UserResponse createUser(UserCreationRequest userCreationRequest, UUID adminId) {
+        Role adminRole = userRepository.findRoleById(adminId)
+                .orElseThrow(() -> new UsernameNotFoundException("Admin not found for ID: " + adminId));
+        if (adminRole != Role.ADMIN && adminRole != Role.SUPERADMIN) {
+            throw new IllegalStateException("Unauthorized: Only authorized admins can create users.");
+        }
+        Role targetRole = userCreationRequest.getRole();
+        if(!helper.isAuthorizedToCreate(adminRole,targetRole))
+        {
+            log.warn(("Admin {} (Role: {}) attempted to create unauthorized role: {}"), adminId, adminRole, targetRole);
+            throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
+        }
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
+        mailService.sendInvitationEmail(userCreationRequest.getEmail(),userCreationRequest.getName(),token);
         User user = User.builder()
                 .name(userCreationRequest.getName())
                 .email(userCreationRequest.getEmail())
                 .role(userCreationRequest.getRole())
-                .status(userCreationRequest.getStatus())
+                .status(Status.INVITED)
                 .createdBy(adminId)
                 .updatedBy(adminId)
+                .invitationToken(token)
+                .tokenExpiresAt(expirationTime)
                 .build();
         User savedUser = userRepository.save(user);
 
         return convertToUserResponse(savedUser);
     }
+
+
 
     private UserResponse convertToUserResponse(User savedUser) {
         return UserResponse.builder()
@@ -90,9 +115,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> findAll() {
-        List<User> users = userRepository.findAll();
-
+    public List<UserResponse> findAll(UUID adminId) {
+        List<User> users = userRepository.findAllByCreatedBy(adminId);
         return users.stream()
                 .map(this::convertToUserResponse)
                 .collect(Collectors.toList());
@@ -193,9 +217,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> createUsers(List<UserCreationRequest> userCreationRequests, UUID adminId) {
+
+        Role adminRole = userRepository.findRoleById(adminId).orElseThrow(
+                ()-> new UsernameNotFoundException("Admin not found for ID : "+adminId)
+        );
+        if (adminRole != Role.ADMIN && adminRole != Role.SUPERADMIN) {
+            throw new IllegalStateException("Unauthorized: Only authorized admins can create users.");
+        }
+
         List<UserResponse> userResponses = new ArrayList<>();
         for(UserCreationRequest userCreationRequest : userCreationRequests)
         {
+            Role targetRole = userCreationRequest.getRole();
+            if(!helper.isAuthorizedToCreate(adminRole,targetRole))
+            {
+                log.warn("Admin {} (Role: {}) attempted to create unauthorized role: {}", adminId, adminRole, targetRole);
+                throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
+            }
             User user =
             User.builder()
                     .name(userCreationRequest.getName())
@@ -247,6 +285,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ImportResult processBulkImport(MultipartFile file, UUID adminId) throws Exception {
+
+        Role adminRole = userRepository.findRoleById(adminId)
+                .orElseThrow(()-> new UsernameNotFoundException("ADMIN not found with ID : "+adminId));
+        if (adminRole != Role.ADMIN && adminRole != Role.SUPERADMIN) {
+            throw new RuntimeException("Unauthorized: Only ADMIN or SUPERADMIN can perform bulk import.");
+        }
+
+
         List<UserCsvRecord> allRecords;
 
         try(Reader reader = new InputStreamReader(file.getInputStream()))
@@ -269,7 +315,7 @@ public class UserServiceImpl implements UserService {
         AtomicInteger rowIndex = new AtomicInteger(1);
         for(UserCsvRecord record : allRecords)
         {
-            Map<String,String> error = validateRecord(record, emailsInCsv , rowIndex.get());
+            Map<String,String> error = validateRecord(record, emailsInCsv , rowIndex.get() , adminRole);
             if(!error.isEmpty())
                 invalidEntries.add(error);
             else {
@@ -313,11 +359,11 @@ public class UserServiceImpl implements UserService {
                     .errorCount(0)
                     .build();
         }
-         return createUsersAndSendInvites(usersToProcess);
+         return createUsersAndSendInvites(usersToProcess , adminId);
     }
 
 
-    private Map<String, String> validateRecord(UserCsvRecord record, Set<String> emailsInCsv, int rowIndex) {
+    private Map<String, String> validateRecord(UserCsvRecord record, Set<String> emailsInCsv, int rowIndex , Role adminRole) {
         List<String> errors = new ArrayList<>();
         String emailNormalized = record.getEmail() != null ? record.getEmail().trim().toLowerCase() : null;
         if (record.getName() == null || record.getName().isBlank() ||
@@ -325,9 +371,29 @@ public class UserServiceImpl implements UserService {
                 record.getEmail() == null || record.getEmail().isBlank()) {
             errors.add("One or more essential fields (Name, Role, Email) are missing.");
         }
+        if (errors.isEmpty() && record.getRole() != null) {
+            try {
+                Role targetRole = Role.valueOf(record.getRole().toUpperCase().trim());
+
+                if (adminRole == Role.ADMIN && targetRole != Role.EDUCATOR) {
+                    // ADMIN can ONLY create EDUCATORs
+                    errors.add("ADMIN can only create users with the role 'EDUCATOR'.");
+                } else if (adminRole == Role.SUPERADMIN && targetRole != Role.ADMIN && targetRole != Role.EDUCATOR) {
+                    // SUPERADMIN can create ADMIN or EDUCATOR
+                    errors.add("SUPERADMIN can only create users with roles 'ADMIN' or 'EDUCATOR'.");
+                }
+                else if (targetRole == Role.SUPERADMIN) {
+                    errors.add("Cannot create users with the role 'SUPERADMIN' via bulk import.");
+                }
+            } catch (IllegalArgumentException e) {
+                errors.add("Invalid role value: '" + record.getRole() + "'.");
+            }
+        }
+
         if (emailNormalized != null && emailsInCsv.contains(emailNormalized)) {
             errors.add("Email is duplicated within the uploaded file.");
         }
+
         if(errors.isEmpty())
             return Collections.emptyMap();
         else{
@@ -341,18 +407,34 @@ public class UserServiceImpl implements UserService {
 
 
     @Transactional
-    protected ImportResult createUsersAndSendInvites(List<UserCsvRecord> records) {
+    protected ImportResult createUsersAndSendInvites(List<UserCsvRecord> records , UUID adminId) {
+        Role adminRole = userRepository.findRoleById(adminId)
+                .orElseThrow(() -> new UsernameNotFoundException("Admin not found for ID: " + adminId));
+        if (adminRole != Role.ADMIN && adminRole != Role.SUPERADMIN) {
+            throw new IllegalStateException("Unauthorized: Only authorized admins can create users.");
+        }
         List<User> newUsers = records.stream()
                 .map(record -> {
                     String token = UUID.randomUUID().toString();
-//                    sendInvitationEmail(record.getEmail(),record.getName(),token);
+                    LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
+                    Role targetRole = Role.valueOf(record.getRole());
+                    if(!helper.isAuthorizedToCreate(adminRole,targetRole))
+                    {
+                        log.warn("Admin {} (Role: {}) attempted to create unauthorized role: {}", adminId, adminRole, targetRole);
+                        throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
+                    }
+                    mailService.sendInvitationEmail(record.getEmail(), record.getName() , token);
                     return User.builder()
                             .name(record.getName())
                             .role(Role.valueOf(record.getRole().toString()))
                             .email(record.getEmail().toLowerCase())
                             .status(Status.INVITED)
+                            .createdBy(adminId)
+                            .updatedBy(adminId)
+                            .invitationToken(token)
+                            .tokenExpiresAt(expirationTime)
                             .build();
-
+                    
                 }).collect(Collectors.toList());
         return ImportResult.builder()
                 .status("Success")
@@ -361,18 +443,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-//    private void sendInvitationEmail(String toEmail, String name, String token) 
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setFrom("no-reply@your-app.com");
-//        message.setTo(toEmail);
-//        message.setSubject("You've been invited to join!");
-//
-//        String inviteLink = "https://your-frontend.com/verify-invite?token=" + token;
-//        message.setText(String.format("Hello %s,\n\nPlease click the link to set up your account: %s", name, inviteLink));
-//
-//        // This is where you would call emailSender.send(message) in a real app.
-//        System.out.println("--- MOCK EMAIL SENT to " + toEmail + " with token: " + token);
-//    }
 
 
 

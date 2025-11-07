@@ -70,4 +70,10 @@ public class User {
             read = "role::text"
     )
     private Role role;
+
+    @Column(name= "invitation_token" , unique = true)
+    String invitationToken;
+
+    @Column(name ="token_expires_at", nullable = true)
+    LocalDateTime tokenExpiresAt;
 }

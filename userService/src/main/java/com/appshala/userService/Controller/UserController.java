@@ -34,13 +34,18 @@ public class UserController {
 
     @PostMapping("/createUser")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreationRequest userCreationRequest, @RequestHeader("adminId") UUID adminId) {
+        if(adminId==null || !userService.checkUserExistsById(adminId))
+        {
+            log.error("admin with the ID : {} doest not exist",adminId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         UserResponse userResponse = userService.createUser(userCreationRequest, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<UserResponse>> getUsersList() {
-        return ResponseEntity.ok(userService.findAll());
+    public ResponseEntity<List<UserResponse>> getUsersList(@RequestHeader UUID adminId) {
+        return ResponseEntity.ok(userService.findAll(adminId));
     }
 
     @GetMapping("/getUsers")
@@ -90,6 +95,16 @@ public class UserController {
                     .errorCount(0)
                     .build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(importResult);
+        }
+        if(adminId == null || !userService.checkUserExistsById(adminId))
+        {
+            ImportResult importResult = ImportResult.builder()
+                    .status("Failure")
+                    .message("This admin ID does not exist")
+                    .errorCount(0)
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(importResult);
+
         }
         // Basic MIME type check
         if (!"text/csv".equalsIgnoreCase(file.getContentType()) &&

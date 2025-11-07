@@ -20,7 +20,7 @@ import java.util.UUID;
 public interface UserService {
     public UserResponse createUser(UserCreationRequest userCreationRequest, UUID adminId);
     public User findByEmail(String email);
-    public List<UserResponse> findAll();
+    public List<UserResponse> findAll(UUID adminId);
     public boolean existByEmail(String email);
     public Page<UserResponse> findUsers(
             Role role,
