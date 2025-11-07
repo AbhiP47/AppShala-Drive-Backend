@@ -361,7 +361,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-//    private void sendInvitationEmail(String toEmail, String name, String token) {
+//    private void sendInvitationEmail(String toEmail, String name, String token) 
 //        SimpleMailMessage message = new SimpleMailMessage();
 //        message.setFrom("no-reply@your-app.com");
 //        message.setTo(toEmail);
