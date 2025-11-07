@@ -68,6 +68,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public UserResponse createUser(UserCreationRequest userCreationRequest, UUID adminId) {
         Role adminRole = userRepository.findRoleById(adminId)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found for ID: " + adminId));
@@ -82,7 +83,16 @@ public class UserServiceImpl implements UserService {
         }
         String token = UUID.randomUUID().toString();
         LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
-        mailService.sendInvitationEmail(userCreationRequest.getEmail(),userCreationRequest.getName(),token);
+        try{
+            mailService.sendInvitationEmail(userCreationRequest.getEmail(),userCreationRequest.getName(),token);
+            log.info("Successfully sent invitation mail to {} with email {}", userCreationRequest.getName(), userCreationRequest.getEmail());
+        }
+        catch (Exception e)
+        {
+            log.error("FAILED to send invitation mail to {} with email {}",userCreationRequest.getName(),userCreationRequest.getEmail());
+
+            throw new RuntimeException("Failed to send the invitation mail ");
+        }
         User user = User.builder()
                 .name(userCreationRequest.getName())
                 .email(userCreationRequest.getEmail())
@@ -413,6 +423,37 @@ public class UserServiceImpl implements UserService {
         if (adminRole != Role.ADMIN && adminRole != Role.SUPERADMIN) {
             throw new IllegalStateException("Unauthorized: Only authorized admins can create users.");
         }
+        for(UserCsvRecord record : records)
+        {
+            String token = UUID.randomUUID().toString();
+            LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
+            Role targetRole = Role.valueOf(record.getRole());
+            if(!helper.isAuthorizedToCreate(adminRole,targetRole))
+            {
+                log.warn("Admin {} (Role: {}) attempted to create unauthorized role: {}", adminId, adminRole, targetRole);
+                throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
+            }
+            if(mailService.sendInvitationEmail(record.getEmail(),record.getName(), token))
+            {
+                log.info("Successfully sent invitation mail to {} with email {}", record.getName(), record.getEmail());
+                User user =
+                User.builder()
+                        .name(record.getName())
+                        .role(Role.valueOf(record.getRole().toString()))
+                        .email(record.getEmail().toLowerCase())
+                        .status(Status.INVITED)
+                        .createdBy(adminId)
+                        .updatedBy(adminId)
+                        .invitationToken(token)
+                        .tokenExpiresAt(expirationTime)
+                        .build();
+                userRepository.save(user);
+            }
+            else{
+                log.error("Failed to send invitation email to {}).", record.getEmail());
+            }
+                
+        }
         List<User> newUsers = records.stream()
                 .map(record -> {
                     String token = UUID.randomUUID().toString();
@@ -423,7 +464,6 @@ public class UserServiceImpl implements UserService {
                         log.warn("Admin {} (Role: {}) attempted to create unauthorized role: {}", adminId, adminRole, targetRole);
                         throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
                     }
-                    mailService.sendInvitationEmail(record.getEmail(), record.getName() , token);
                     return User.builder()
                             .name(record.getName())
                             .role(Role.valueOf(record.getRole().toString()))
@@ -434,15 +474,29 @@ public class UserServiceImpl implements UserService {
                             .invitationToken(token)
                             .tokenExpiresAt(expirationTime)
                             .build();
-                    
+
                 }).collect(Collectors.toList());
+        List<User> savedUsers = userRepository.saveAll(newUsers);
+        savedUsers.forEach(
+                user -> {
+                    try{
+                        mailService.sendInvitationEmail(user.getEmail(), user.getName(), user.getInvitationToken());
+                        log.info("Successfully sent invitation mail to {} with email {}", user.getName(), user.getEmail());
+
+                    }
+                    catch (Exception e)
+                    {
+                        log.error("Failed to send invitation email to {} (User ID: {}).", user.getEmail(), user.getId(), e);
+                        throw new RuntimeException("Failed to send the invitation mail ");
+                    }
+                }
+        );
         return ImportResult.builder()
                 .status("Success")
                 .message("Bulk Import completed. Invitation emails sent to "+ newUsers.size() + " users.")
                 .build();
 
     }
-
 
 
 

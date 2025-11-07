@@ -4,6 +4,8 @@ import com.appshala.userService.Enum.Role;
 import com.appshala.userService.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -13,9 +15,12 @@ public interface UserRepository extends JpaRepository<User, UUID> , JpaSpecifica
 
     User findByEmail(String email);
 
-    Set<String> findExistingEmails(ArrayList<String> strings);
+    @Query("SELECT u.email FROM User u WHERE u.email IN :emails")
+    Set<String> findExistingEmails(@Param("emails") List<String> emailList);
 
-    Optional<Role> findRoleById(UUID userId);
+    @Query("SELECT u.role FROM User u WHERE u.id = :adminId")
+    Optional<Role> findRoleById(@Param("adminId") UUID adminId);
 
     List<User> findAllByCreatedBy(UUID adminId);
+
 }

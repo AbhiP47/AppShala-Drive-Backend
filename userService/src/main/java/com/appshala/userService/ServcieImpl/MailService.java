@@ -2,6 +2,7 @@ package com.appshala.userService.ServcieImpl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException; // Import the base MailException
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class MailService {
+
     private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
@@ -22,8 +24,9 @@ public class MailService {
         this.mailSender = mailSender;
     }
 
-    public void sendInvitationEmail(String toEmail , String userName , String token)
-    {
+    // METHOD SIGNATURE MODIFIED to throw Exception, making it clear to the caller
+    public boolean sendInvitationEmail(String toEmail , String userName , String token) throws RuntimeException {
+
         SimpleMailMessage message = new SimpleMailMessage();
 
         final String inviteLink = frontendInviteUrl + token;
@@ -42,13 +45,16 @@ public class MailService {
         );
         message.setText(emailBody);
 
-        try{
+        try {
+            // Attempt to send the email
             mailSender.send(message);
-            log.info("Successfully sent invitation email to : {}",toEmail);
-        }
-        catch (Exception e)
-        {
-            log.error("Failed to send invitation email to : {}",toEmail);
+            log.info("Successfully sent invitation email to: {}", toEmail);
+            return true;
+        } catch (MailException e) {
+            // Log the specific mail error (Auth failure, connection issue, etc.)
+            log.error("MAIL ERROR: Failed to send invitation to {} ({}). Cause: {}", userName, toEmail, e.getMessage());
+
+            return false;
         }
     }
 }
