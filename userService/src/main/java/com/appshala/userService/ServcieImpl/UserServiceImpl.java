@@ -416,84 +416,53 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Transactional
-    protected ImportResult createUsersAndSendInvites(List<UserCsvRecord> records , UUID adminId) {
+    private ImportResult createUsersAndSendInvites(List<UserCsvRecord> records , UUID adminId) {
         Role adminRole = userRepository.findRoleById(adminId)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found for ID: " + adminId));
         if (adminRole != Role.ADMIN && adminRole != Role.SUPERADMIN) {
             throw new IllegalStateException("Unauthorized: Only authorized admins can create users.");
         }
-        for(UserCsvRecord record : records)
-        {
+        List<Map<String, String>> failedInvites = new ArrayList<>();
+        List<User> newUsers = new ArrayList<>();
+        for (UserCsvRecord record : records) {
             String token = UUID.randomUUID().toString();
             LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
             Role targetRole = Role.valueOf(record.getRole());
-            if(!helper.isAuthorizedToCreate(adminRole,targetRole))
-            {
+            if (!helper.isAuthorizedToCreate(adminRole, targetRole)) {
                 log.warn("Admin {} (Role: {}) attempted to create unauthorized role: {}", adminId, adminRole, targetRole);
                 throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
             }
-            if(mailService.sendInvitationEmail(record.getEmail(),record.getName(), token))
-            {
+            if (mailService.sendInvitationEmail(record.getEmail(), record.getName(), token)) {
                 log.info("Successfully sent invitation mail to {} with email {}", record.getName(), record.getEmail());
                 User user =
-                User.builder()
-                        .name(record.getName())
-                        .role(Role.valueOf(record.getRole().toString()))
-                        .email(record.getEmail().toLowerCase())
-                        .status(Status.INVITED)
-                        .createdBy(adminId)
-                        .updatedBy(adminId)
-                        .invitationToken(token)
-                        .tokenExpiresAt(expirationTime)
-                        .build();
-                userRepository.save(user);
-            }
-            else{
+                        User.builder()
+                                .name(record.getName())
+                                .role(Role.valueOf(record.getRole().toString()))
+                                .email(record.getEmail().toLowerCase())
+                                .status(Status.INVITED)
+                                .createdBy(adminId)
+                                .updatedBy(adminId)
+                                .invitationToken(token)
+                                .tokenExpiresAt(expirationTime)
+                                .build();
+                newUsers.add(user);
+            } else {
                 log.error("Failed to send invitation email to {}).", record.getEmail());
+                Map<String, String> failedInvite = new HashMap<>();
+                failedInvites.add(Map.of(
+                        "Name", record.getName(),
+                        "Email", record.getEmail(),
+                        "Reason", "Invitation email failed to send"
+                ));
             }
-                
         }
-        List<User> newUsers = records.stream()
-                .map(record -> {
-                    String token = UUID.randomUUID().toString();
-                    LocalDateTime expirationTime = LocalDateTime.now().plusDays(7);
-                    Role targetRole = Role.valueOf(record.getRole());
-                    if(!helper.isAuthorizedToCreate(adminRole,targetRole))
-                    {
-                        log.warn("Admin {} (Role: {}) attempted to create unauthorized role: {}", adminId, adminRole, targetRole);
-                        throw new SecurityException("Admin role " + adminRole + " is not authorized to create users with role " + targetRole);
-                    }
-                    return User.builder()
-                            .name(record.getName())
-                            .role(Role.valueOf(record.getRole().toString()))
-                            .email(record.getEmail().toLowerCase())
-                            .status(Status.INVITED)
-                            .createdBy(adminId)
-                            .updatedBy(adminId)
-                            .invitationToken(token)
-                            .tokenExpiresAt(expirationTime)
-                            .build();
-
-                }).collect(Collectors.toList());
         List<User> savedUsers = userRepository.saveAll(newUsers);
-        savedUsers.forEach(
-                user -> {
-                    try{
-                        mailService.sendInvitationEmail(user.getEmail(), user.getName(), user.getInvitationToken());
-                        log.info("Successfully sent invitation mail to {} with email {}", user.getName(), user.getEmail());
-
-                    }
-                    catch (Exception e)
-                    {
-                        log.error("Failed to send invitation email to {} (User ID: {}).", user.getEmail(), user.getId(), e);
-                        throw new RuntimeException("Failed to send the invitation mail ");
-                    }
-                }
-        );
         return ImportResult.builder()
-                .status("Success")
-                .message("Bulk Import completed. Invitation emails sent to "+ newUsers.size() + " users.")
+                .status("Success with failed to send emails to " + failedInvites.size() + " records")
+                .message("Bulk Import completed. Invitation emails sent to " + (records.size() - failedInvites.size()) + " users.")
+                .processedCount(savedUsers.size())
+                .errorCount(failedInvites.size())
+                .errorDetails(failedInvites)
                 .build();
 
     }
