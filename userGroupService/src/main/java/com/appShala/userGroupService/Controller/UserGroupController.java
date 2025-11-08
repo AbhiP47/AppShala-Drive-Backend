@@ -27,16 +27,14 @@ public class UserGroupController {
 
 
     @PostMapping("/createGroup")
-    public ResponseEntity<UserGroupResponse> createGroup(@RequestBody UserGroupRequest groupRequest)
+    public ResponseEntity<UserGroupResponse> createGroup(@RequestBody UserGroupRequest groupRequest, @RequestHeader("adminId") UUID adminId)
     {
-        UUID adminId = groupRequest.getAdminId();
-
         if (groupRequest.getName() == null || groupRequest.getName().isEmpty() || adminId == null) {
             return ResponseEntity.badRequest().build();
         }
 
         try {
-            UserGroupResponse response = userGroupService.createGroup(groupRequest);
+            UserGroupResponse response = userGroupService.createGroup(groupRequest , adminId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 

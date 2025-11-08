@@ -11,5 +11,4 @@ import java.util.UUID;
 public class UserGroupRequest {
     private String name;
     private List<UUID> initialMembers;
-    private UUID adminId;
 }

@@ -2,6 +2,7 @@ package com.appShala.userGroupService.ServiceImpl;
 
 import com.appShala.userGroupService.Enum.MemberRole;
 import com.appShala.userGroupService.Model.Membership;
+import com.appShala.userGroupService.Model.UserGroup;
 import com.appShala.userGroupService.Payload.MemberDTO;
 import com.appShala.userGroupService.Payload.MembershipResponse;
 import com.appShala.userGroupService.Repository.MembershipRepository;
@@ -31,13 +32,13 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     @Override
-    public List<Membership> buildAndSaveInitialMemberships(UUID groupId, UUID adminId, List<UUID> initialMembers) {
+    public List<Membership> buildAndSaveInitialMemberships(UserGroup group, UUID adminId, List<UUID> initialMembers) {
         Set<UUID> allMemberIds = new HashSet<>(initialMembers);
         allMemberIds.add(adminId);
 
         List<Membership> memberships = allMemberIds.stream()
                 .map(userId -> Membership.builder()
-                        .groupId(groupId)
+                        .group(group)
                         .userId(userId)
                         .role(userId.equals(adminId) ? MemberRole.MANAGER : MemberRole.MEMBER)
                         .build()
@@ -66,16 +67,18 @@ public class MembershipServiceImpl implements MembershipService {
                 .collect(Collectors.toList());
         if(newMemberIds.isEmpty())
             throw new IllegalArgumentException("All provided users are already present");
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(()-> new IllegalArgumentException("Group not found with ID :"+groupId));
         List<Membership> newMemberships = newMemberIds.stream()
                 .map(userId -> Membership.builder()
-                        .groupId(groupId)
+                        .group(group)
                         .userId(userId)
                         .role(MemberRole.MEMBER)
                         .build())
                 .collect(Collectors.toList());
         List<Membership> savedMemberships = membershipRepository.saveAll(newMemberships);
 
-        return  convertToMembershipResponse(savedMemberships , adminId , groupId);
+        return  convertToMembershipResponse(savedMemberships , adminId , group.getId());
     }
 
     @Override

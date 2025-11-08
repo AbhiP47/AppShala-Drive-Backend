@@ -38,20 +38,20 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     @Transactional
     @Override
-    public UserGroupResponse createGroup(UserGroupRequest groupRequest) {
+    public UserGroupResponse createGroup(UserGroupRequest groupRequest , UUID adminId) {
 
         if(userGroupRepository.findByName(groupRequest.getName()).isPresent())
             throw new IllegalArgumentException("Group name already exists");
 
         UserGroup group = UserGroup.builder()
                 .name(groupRequest.getName())
-                .createdBy(groupRequest.getAdminId())
+                .createdBy(adminId)
                 .build();
         UserGroup savedGroup = userGroupRepository.save(group);
 
        List<Membership> memberships = membershipService.buildAndSaveInitialMemberships(
-               savedGroup.getId(),
-               groupRequest.getAdminId(),
+               savedGroup,
+               savedGroup.getCreatedBy(),
                groupRequest.getInitialMembers()
 
        );

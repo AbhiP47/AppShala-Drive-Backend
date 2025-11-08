@@ -16,5 +16,6 @@ public class ImportResult {
     private String message;
     private int processedCount;
     private int errorCount;
+
     private List<Map<String , String>> errorDetails;
 }
