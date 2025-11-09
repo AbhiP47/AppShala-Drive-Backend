@@ -39,8 +39,8 @@ public class UserController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<UserResponse>> getUsersList() {
-        return ResponseEntity.ok(userService.findAll());
+    public ResponseEntity<List<UserResponse>> getUsersList(@RequestHeader("adminId") UUID adminId) {
+        return ResponseEntity.ok(userService.findAll(adminId));
     }
 
     @GetMapping("/getUsers")
