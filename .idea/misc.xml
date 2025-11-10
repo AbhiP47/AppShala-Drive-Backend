@@ -19,6 +19,7 @@
       <set>
         <option value="$PROJECT_DIR$/DriveService/pom.xml" />
         <option value="$PROJECT_DIR$/DriveSevice/pom.xml" />
+        <option value="$PROJECT_DIR$/../DriveService/pom.xml" />
       </set>
     </option>
   </component>

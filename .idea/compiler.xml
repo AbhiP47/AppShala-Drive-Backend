@@ -36,11 +36,11 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
-        <module name="DriveService (2)" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="DriveService" target="21" />
+      <module name="DriveService (2)" target="21" />
       <module name="DriveSevice" target="25" />
     </bytecodeTargetLevel>
   </component>
