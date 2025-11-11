@@ -1,22 +1,21 @@
 package com.appshala.userService.Client;
 
-import com.appshala.userService.Payloads.GroupDetailsRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
+
 import java.util.List;
 import java.util.UUID;
 
 // TO be used in userService for searching users using group filter
-@FeignClient(name = "GROUPSERVICE" , path = "/api")
+@FeignClient(name = "USERGROUPSERVICE" , path = "/api/group")
 public interface GroupServiceClient {
 
-    // get all the userGroups in which the admin is present
-    @GetMapping("/membership/user/{memberrId}")
-    List<UUID> getGroupIdsByUserId(@PathVariable("memberId") UUID memberId);
+    // get the groupId by groupName
+    @GetMapping("groupId/{groupName}")
+    UUID getGroupIdByName(@PathVariable("groupName") String groupName , @RequestHeader("adminId") UUID callingAdminId);
 
-    // get the groups by groupIds
-    @GetMapping("/group/names")
-    List<GroupDetailsRequest> getGroupDetailsByIds(@RequestParam("groupIds") List<UUID> groupIds);
+    @GetMapping("membership/userId/{groupId}")
+    List<UUID> getMemberUserIdsByGroupId(@PathVariable("groupId") UUID groupId );
 }

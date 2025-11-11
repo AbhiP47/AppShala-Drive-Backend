@@ -5,6 +5,7 @@ import com.appShala.userGroupService.Enum.SortDirection;
 import com.appShala.userGroupService.Payload.UserGroupRequest;
 import com.appShala.userGroupService.Payload.UserGroupResponse;
 import com.appShala.userGroupService.Service.UserGroupService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/group")
 public class UserGroupController {
@@ -25,16 +27,14 @@ public class UserGroupController {
 
 
     @PostMapping("/createGroup")
-    public ResponseEntity<UserGroupResponse> createGroup(@RequestBody UserGroupRequest groupRequest)
+    public ResponseEntity<UserGroupResponse> createGroup(@RequestBody UserGroupRequest groupRequest, @RequestHeader("adminId") UUID adminId)
     {
-        UUID adminId = groupRequest.getAdminId();
-
         if (groupRequest.getName() == null || groupRequest.getName().isEmpty() || adminId == null) {
             return ResponseEntity.badRequest().build();
         }
 
         try {
-            UserGroupResponse response = userGroupService.createGroup(groupRequest);
+            UserGroupResponse response = userGroupService.createGroup(groupRequest , adminId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
@@ -85,4 +85,12 @@ public class UserGroupController {
         return userGroupService.getGroups(userName,sortBy,sortDirection,page,size);
     }
 
+    // get groupId by group name for the user service
+    @GetMapping("/groupId/{groupName}")
+    public ResponseEntity<UUID> getGroupIdByName(@PathVariable("groupName") String groupName , @RequestHeader("adminId") UUID adminId)
+    {
+        log.info("get groupId by group name for the user service  TRIGGERED");
+        UUID groupId = userGroupService.findGroupIdByName(groupName,adminId);
+        return ResponseEntity.status(HttpStatus.FOUND).body(groupId);
+    }
 }

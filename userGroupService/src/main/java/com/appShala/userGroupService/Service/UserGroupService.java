@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface UserGroupService {
 
-    public UserGroupResponse createGroup(UserGroupRequest groupRequest);
+    public UserGroupResponse createGroup(UserGroupRequest groupRequest , UUID adminId);
 
     public List<UserGroupResponse> getGroupDetailsByIds(List<UUID> grouoIds);
 
@@ -20,4 +20,6 @@ public interface UserGroupService {
     public UserGroupResponse updateGroup(UUID groupId, UserGroupRequest request , UUID adminId);
 
     public Page<UserGroupResponse> getGroups(String userName, GroupSortBy sortBy, SortDirection sortDirection, int page, int size);
+
+    public UUID findGroupIdByName(String groupName, UUID adminId);
 }

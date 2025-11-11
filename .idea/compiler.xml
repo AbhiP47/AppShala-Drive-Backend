@@ -8,28 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="apiGateway" />
-        <module name="eurekaServer" />
         <module name="driveService" />
-      </profile>
-      <profile name="Annotation profile for userGroupService" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-        </processorPath>
-        <module name="userGroupService" />
-      </profile>
-      <profile name="Annotation profile for userService" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
-        </processorPath>
-        <module name="userService" />
+        <module name="configserver" />
+        <module name="eurekaServer" />
+        <module name="storageservice" />
       </profile>
       <profile name="Annotation profile for DriveService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -40,18 +22,26 @@
         </processorPath>
         <module name="DriveService" />
       </profile>
+      <profile name="Annotation profile for userService" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="userGroupService" />
+        <module name="userService" />
+      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="DriveService (2)" target="21" />
-      <module name="DriveSevice" target="25" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="24" />
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="DriveService" options="-parameters" />
-      <module name="DriveService (2)" options="-parameters" />
       <module name="apiGateway" options="-parameters" />
+      <module name="configserver" options="-parameters" />
       <module name="eurekaServer" options="-parameters" />
+      <module name="storageservice" options="-parameters" />
       <module name="userGroupService" options="-parameters" />
       <module name="userService" options="-parameters" />
     </option>
