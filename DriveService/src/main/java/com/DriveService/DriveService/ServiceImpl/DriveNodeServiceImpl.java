@@ -39,7 +39,6 @@ public class DriveNodeServiceImpl implements DriveNodeService {
                 .build();
     }
 
-
     @Autowired
     public DriveNodeServiceImpl(DriveNodeRepository driveNodeRepository, NodeTypeRepository nodeTypeRepository, StarredNodeRepository starredNodeRepository) {
         this.driveNodeRepository = driveNodeRepository;
