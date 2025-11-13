@@ -10,8 +10,6 @@ import java.util.UUID;
 @Repository
 public interface NodeTypeRepository extends JpaRepository<NodeType , UUID>
 {
-        Optional<NodeType> findByFileExtension(String fileExtension);
-        Optional<NodeType> findByType(String type);
         Optional<NodeType> findByFileExtensionIgnoreCase(String fileExtension);
 
 }

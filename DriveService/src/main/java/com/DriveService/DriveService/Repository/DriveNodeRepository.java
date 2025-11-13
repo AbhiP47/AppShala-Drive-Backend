@@ -11,9 +11,8 @@ import java.util.UUID;
 @Repository
 public interface DriveNodeRepository extends JpaRepository<DriveNode, UUID> {
 
-    List<DriveNode> findAllByOwnerId(UUID ownerId);
     Optional<DriveNode> findById(UUID id);
-    List<DriveNode> findByNameAndParent(String name, DriveNode parent);
+
     List<DriveNode> findAllByParent(DriveNode parent);
 
 }

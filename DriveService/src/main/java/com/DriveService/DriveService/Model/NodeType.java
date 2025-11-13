@@ -2,8 +2,6 @@ package com.DriveService.DriveService.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-
 import java.util.List;
 import java.util.UUID;
 

@@ -1,37 +1,20 @@
-package com.DriveService.DriveService.storageClient;
+package com.DriveService.DriveService.Client;
 
+import com.DriveService.DriveService.payloads.DeleteResponse;
 import com.DriveService.DriveService.payloads.PresignedUrlResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+@FeignClient(name = "STORAGESERVICE" , path = "/api/storage")
+public interface StorageServiceClient {
 
-@Service
-public class StorageServiceClient {
-    @Autowired
-    private RestTemplate restTemplate;
+    @GetMapping("/generate-upload-url")
+    PresignedUrlResponse requestUploadUrl();
 
-    @Value("${storageService.url}")
-    private String storageUrl;
+    @GetMapping("/download-url/{storageId}")
+    PresignedUrlResponse requestDownloadUrl(@PathVariable("storageId") String storageId);
 
-    public PresignedUrlResponse requestUploadUrl(String storageId){
-        String url = storageUrl + "api/storage/generate-upload-url";
-        return restTemplate.postForObject(url, null, PresignedUrlResponse.class);
-    }
-    public PresignedUrlResponse requestDownloadUrl(String storageId) {
-        String url = storageUrl + "api/storage/download-url" + storageId;
-        return restTemplate.getForObject(url, PresignedUrlResponse.class);
-    }
-    public void deleteOnStorage(String storageId) {
-        String url = storageUrl + "/api/storage/delete/" + storageId;
-        restTemplate.delete(url);
-    }
-    public void uploadToPresignedUrl(String presignedUrl, HttpEntity<byte[]> requestEntity) {
-        restTemplate.exchange(presignedUrl, HttpMethod.PUT, requestEntity, String.class);
-    }
+    @DeleteMapping("/delete/{storageId}")
+    DeleteResponse deleteOnStorage(@PathVariable("storageId") String storageId);
 
 }

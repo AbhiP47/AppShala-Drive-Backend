@@ -13,11 +13,12 @@
         <option value="$PROJECT_DIR$/DriveSevice/pom.xml" />
         <option value="$PROJECT_DIR$/driveService/pom.xml" />
         <option value="$PROJECT_DIR$/../DriveService/pom.xml" />
+        <option value="$PROJECT_DIR$/configserver/pom.xml" />
+        <option value="$PROJECT_DIR$/storageservice/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/DriveService/pom.xml" />
         <option value="$PROJECT_DIR$/DriveSevice/pom.xml" />
       </set>
     </option>

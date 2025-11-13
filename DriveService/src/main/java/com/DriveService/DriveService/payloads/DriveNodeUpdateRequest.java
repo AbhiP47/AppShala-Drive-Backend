@@ -1,6 +1,5 @@
 package com.DriveService.DriveService.payloads;
 
-import com.DriveService.DriveService.Model.DriveNode;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

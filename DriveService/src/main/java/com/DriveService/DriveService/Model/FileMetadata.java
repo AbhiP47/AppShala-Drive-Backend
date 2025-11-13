@@ -1,26 +1,31 @@
 package com.DriveService.DriveService.Model;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
- @Data
+import java.util.UUID;
+
+@Data
  @AllArgsConstructor
  @NoArgsConstructor
-public class StorageFile {
+ @Entity
+public class FileMetadata {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    private String storageId;
     private String fileName;
+    private UUID userId;
     private String fileType;
-    private Long size;
-    private String uploadedBy;
+    private long size;
     private LocalDateTime uploadedAt;
+    private UUID uploadedBy;
     private String status;
+    private String storageId;
 }
