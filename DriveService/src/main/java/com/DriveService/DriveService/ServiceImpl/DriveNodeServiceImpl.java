@@ -76,7 +76,6 @@ public class DriveNodeServiceImpl implements DriveNodeService {
         return mapToDriveNodeResponse(driveNode, false, false);
     }
 
-
     @Override
     @Transactional
     public DriveNodeResponse getNodeDetails(UUID nodeId) {
@@ -90,10 +89,8 @@ public class DriveNodeServiceImpl implements DriveNodeService {
 
 
         boolean isShared = node.getIsShared() != null && node.getIsShared();
-
         return mapToDriveNodeResponse(node, isShared, isStarred);
     }
-
 
     @Override
     @Transactional
@@ -119,7 +116,6 @@ public class DriveNodeServiceImpl implements DriveNodeService {
                 .totalNodes(nodes.size())
                 .build();
     }
-
 
     @Override
     @Transactional
@@ -154,7 +150,6 @@ public class DriveNodeServiceImpl implements DriveNodeService {
 
         boolean isStarred = (boolean) starredNodeRepository.findByDriveNodeIdAndStarredBy(node.getId(), node.getOwnerId())
                 .map(StarredNode::isStarred).orElse(false);
-
         boolean isShared = node.getIsShared() != null && node.getIsShared();
 
         return mapToDriveNodeResponse(node, isShared, isStarred);
