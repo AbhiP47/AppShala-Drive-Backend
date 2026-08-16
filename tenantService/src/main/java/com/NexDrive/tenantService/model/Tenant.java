@@ -1,13 +1,7 @@
 package com.NexDrive.tenantService.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.NexDrive.tenantService.enums.TenantStatus;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +14,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -44,10 +40,16 @@ public class Tenant {
     @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "plan", nullable = false, length = 50)
-    private TenantPlan plan;
+
+    // Maintaining subscription history
+    @OneToMany(
+            mappedBy = "tenant",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @OrderBy("startDate DESC")
+    private List<Subscription> subscriptions = new ArrayList<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -58,9 +60,6 @@ public class Tenant {
     @Column(name = "seat_limit", nullable = false)
     private int seatLimit;
 
-    @PositiveOrZero
-    @Column(name = "storage_quota_bytes", nullable = false)
-    private long storageQuotaBytes;
 
     @PositiveOrZero
     @Builder.Default
