@@ -1,4 +1,4 @@
-package com.NexDrive.tenantService.model;
+package com.NexDrive.tenantService.enums;
 
 public enum TenantStatus {
     ACTIVE,
