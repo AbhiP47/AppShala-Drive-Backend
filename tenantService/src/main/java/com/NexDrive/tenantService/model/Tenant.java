@@ -40,6 +40,9 @@ public class Tenant {
     @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
 
+    @Column(name = "phone_number" , nullable = false)
+    private String phone;
+
 
     // Maintaining subscription history
     @OneToMany(
@@ -56,15 +59,13 @@ public class Tenant {
     @Column(name = "status", nullable = false, length = 50)
     private TenantStatus status;
 
-    @Min(1)
-    @Column(name = "seat_limit", nullable = false)
-    private int seatLimit;
-
-
     @PositiveOrZero
     @Builder.Default
     @Column(name = "storage_used_bytes", nullable = false)
     private long storageUsedBytes = 0L;
+
+    @Column(name = "remaining_seats", nullable = false)
+    private int seatsLeft;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMPTZ DEFAULT NOW()")

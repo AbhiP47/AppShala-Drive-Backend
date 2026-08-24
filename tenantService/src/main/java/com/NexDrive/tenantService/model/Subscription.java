@@ -3,6 +3,7 @@ package com.NexDrive.tenantService.model;
 import com.NexDrive.tenantService.enums.SubscriptionPlanTier;
 import com.NexDrive.tenantService.enums.SubscriptionStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,15 +29,21 @@ public class Subscription {
     @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
     private Tenant tenant;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "subscription_plan_tier" , nullable = false)
     private SubscriptionPlanTier plan;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "subscription_status" , nullable = false)
     private SubscriptionStatus status;
 
     @PositiveOrZero
     @Column(name = "storage_quota_bytes", nullable = false)
     private long storageQuotaBytes;
+
+    @Min(1)
+    @Column(name = "seat_limit", nullable = false)
+    private int seatLimit;
 
     @Column(name = "plan_cancellation_reason")
     private String cancellationReason;
