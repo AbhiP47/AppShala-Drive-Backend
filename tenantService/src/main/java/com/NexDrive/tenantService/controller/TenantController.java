@@ -1,18 +1,18 @@
 package com.NexDrive.tenantService.controller;
 
+import com.NexDrive.tenantService.dto.CreateTenantRequestDTO;
+import com.NexDrive.tenantService.dto.SubscriptionRequestDTO;
 import com.NexDrive.tenantService.dto.TenantCreationRequestDTO;
 import com.NexDrive.tenantService.dto.TenantCreationResponseDTO;
+import com.NexDrive.tenantService.model.Subscription;
 import com.NexDrive.tenantService.service.TenantService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/owner/tenant")
+@RequestMapping("/api/tenant")
 public class TenantController {
 
 
@@ -23,12 +23,12 @@ public class TenantController {
         this.tenantService = tenantService;
     }
 
-    @GetMapping()
+    @PostMapping()
     public ResponseEntity<TenantCreationResponseDTO> createTenant(
-            @Valid  @RequestBody TenantCreationRequestDTO tenant
-    )
+            @Valid  @RequestBody CreateTenantRequestDTO createTenantRequestDTO
+            )
     {
-        TenantCreationResponseDTO response = tenantService.createTenant(tenant);
+        TenantCreationResponseDTO response = tenantService.createTenant(createTenantRequestDTO.getTenant() , createTenantRequestDTO.getSubscription());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response) ;
     }

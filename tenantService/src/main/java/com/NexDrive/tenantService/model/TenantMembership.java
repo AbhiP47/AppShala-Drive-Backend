@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @RequiredArgsConstructor
 @Entity
 @Table(name="tenant_membership")

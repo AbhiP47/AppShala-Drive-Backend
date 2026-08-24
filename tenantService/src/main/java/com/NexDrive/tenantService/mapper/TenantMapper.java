@@ -8,7 +8,7 @@ import org.mapstruct.*;
 
 @Mapper(
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,  // Ignores unmapped fields without build warnings
         imports = {TenantStatus.class}
 )public interface TenantMapper {
 
