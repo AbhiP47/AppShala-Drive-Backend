@@ -2,7 +2,6 @@ package com.NexDrive.tenantService.model;
 
 import com.NexDrive.tenantService.enums.TenantStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -45,13 +44,8 @@ public class Tenant {
 
 
     // Maintaining subscription history
-    @OneToMany(
-            mappedBy = "tenant",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    @OrderBy("startDate DESC")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "organization_id")
     private List<Subscription> subscriptions = new ArrayList<>();
 
     @NotNull

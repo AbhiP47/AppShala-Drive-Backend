@@ -25,10 +25,6 @@ public class Subscription {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
-    private Tenant tenant;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "subscription_plan_tier" , nullable = false)
     private SubscriptionPlanTier plan;

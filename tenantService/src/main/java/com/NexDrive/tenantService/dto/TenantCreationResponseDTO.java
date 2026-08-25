@@ -1,15 +1,14 @@
 package com.NexDrive.tenantService.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.NexDrive.tenantService.enums.SubscriptionPlanTier;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Setter;
 
-@Data
+@Setter
 @Builder
 public class TenantCreationResponseDTO {
 
-    @NotBlank
     private String name;
 
-
+    private SubscriptionPlanTier plan;
 }
