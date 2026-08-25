@@ -7,26 +7,25 @@ import com.NexDrive.tenantService.dto.TenantCreationResponseDTO;
 import com.NexDrive.tenantService.enums.SubscriptionStatus;
 import com.NexDrive.tenantService.enums.TenantStatus;
 import com.NexDrive.tenantService.helper.SubscriptionInfoHelper;
-import com.NexDrive.tenantService.mapper.TenantMapper;
 import com.NexDrive.tenantService.model.Subscription;
 import com.NexDrive.tenantService.model.Tenant;
 import com.NexDrive.tenantService.repository.SubscriptionRepository;
 import com.NexDrive.tenantService.repository.TenantRepository;
 import com.NexDrive.tenantService.service.TenantService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+@Service
 public class TenantServiceImpl implements TenantService {
 
     private TenantRepository tenantRepository;
     private SubscriptionRepository subscriptionRepository;
-    private TenantMapper tenantMapper;
 
-    public TenantServiceImpl(TenantMapper tenantMapper , TenantRepository tenantRepository , SubscriptionRepository subscriptionRepository)
+    public TenantServiceImpl( TenantRepository tenantRepository , SubscriptionRepository subscriptionRepository)
     {
-        this.tenantMapper = tenantMapper;
         this.tenantRepository = tenantRepository;
         this.subscriptionRepository = subscriptionRepository;
     }
@@ -65,6 +64,10 @@ public class TenantServiceImpl implements TenantService {
                 .build();
 
         tenant.getSubscriptions().add(subscription);
+
+        return TenantCreationResponseDTO.builder()
+                .name(tenantDTO.getName())
+                .build();
 
     }
 }

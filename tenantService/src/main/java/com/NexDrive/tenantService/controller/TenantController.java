@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class TenantController {
 
 
-    private TenantService tenantService;
+    private final TenantService tenantService;
 
     public TenantController(TenantService tenantService)
     {
